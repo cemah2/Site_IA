@@ -18,6 +18,8 @@ import { splitDataset } from "@/lib/ml/datasets";
 import { formatNumber, formatPercent } from "@/lib/viz/geometry";
 import { classColor, CHROME, withAlpha } from "@/lib/viz/palette";
 import { useLab } from "@/store/lab";
+import { useSharedInit } from "@/lib/hooks/useSharedInit";
+import { sharedChoice, sharedNumber } from "@/lib/permalink";
 
 const K_PRESETS = [1, 3, 5, 10, 20, 40];
 
@@ -28,6 +30,14 @@ export function KnnLab() {
   const [weighted, setWeighted] = React.useState(false);
   const [query, setQuery] = React.useState<[number, number]>([0.6, 0.4]);
   const [showField, setShowField] = React.useState(true);
+
+  useSharedInit((p) => {
+    const sk = sharedNumber(p, "k", 1, 60);
+    if (sk !== undefined) setK(Math.round(sk));
+    const sm = sharedChoice(p, "m", ["euclidean", "manhattan"] as const);
+    if (sm) setMetric(sm as Metric);
+    if (p.get("w") !== null) setWeighted(p.get("w") === "true");
+  });
 
   const nClasses = dataset.classNames.length;
   const model = React.useMemo(
@@ -279,7 +289,7 @@ export function KnnLab() {
             />
             <Toggle label="Afficher la frontière" checked={showField} onChange={setShowField} />
             <Divider label="Données" />
-            <DatasetControls />
+            <DatasetControls shareParams={{ k, m: metric, w: weighted }} />
           </>
         }
         below={

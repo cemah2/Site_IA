@@ -25,6 +25,8 @@ import type { ActivationName } from "@/lib/ml/models/activations";
 import { formatPercent } from "@/lib/viz/geometry";
 import { CHROME } from "@/lib/viz/palette";
 import { useLab } from "@/store/lab";
+import { useSharedInit } from "@/lib/hooks/useSharedInit";
+import { sharedChoice, sharedNumber } from "@/lib/permalink";
 
 const ARCHITECTURES: { value: string; label: string; hidden: number[] }[] = [
   { value: "none", label: "Aucune", hidden: [] },
@@ -42,6 +44,45 @@ export function PlaygroundLab() {
 
   const set = <K extends keyof AlgoParams>(key: K, value: AlgoParams[K]) =>
     setParams((p) => ({ ...p, [key]: value }));
+
+  // A shared playground link carries the model and every knob, because that is
+  // what makes it worth sending: "here, this is the configuration I meant".
+  useSharedInit((p) => {
+    const a = sharedChoice(p, "a", ALGO_ORDER);
+    if (a) setAlgo(a);
+    const num = (key: string, lo: number, hi: number) => sharedNumber(p, key, lo, hi);
+    const patch: Partial<AlgoParams> = {};
+    const k = num("k", 1, 60);
+    if (k !== undefined) patch.k = Math.round(k);
+    if (p.get("w") !== null) patch.weighted = p.get("w") === "true";
+    const dp = num("dp", 1, 12);
+    if (dp !== undefined) patch.maxDepth = Math.round(dp);
+    const lf = num("lf", 1, 40);
+    if (lf !== undefined) patch.minSamplesLeaf = Math.round(lf);
+    const cr = sharedChoice(p, "cr", ["gini", "entropy"] as const);
+    if (cr) patch.criterion = cr;
+    const nt = num("nt", 1, 60);
+    if (nt !== undefined) patch.nTrees = Math.round(nt);
+    const C = num("C", 0.01, 100);
+    if (C !== undefined) patch.C = C;
+    const kn = sharedChoice(p, "kn", ["linear", "rbf", "poly"] as const);
+    if (kn) patch.kernel = kn;
+    const g = num("g", 0.01, 20);
+    if (g !== undefined) patch.gamma = g;
+    const dg = num("dg", 2, 6);
+    if (dg !== undefined) patch.degree = Math.round(dg);
+    const lr = num("lr", 0.001, 2);
+    if (lr !== undefined) patch.learningRate = lr;
+    const ep = num("ep", 1, 2000);
+    if (ep !== undefined) patch.epochs = Math.round(ep);
+    const l2 = num("l2", 0, 1);
+    if (l2 !== undefined) patch.l2 = l2;
+    const arch = ARCHITECTURES.find((x) => x.value === p.get("h"));
+    if (arch) patch.hidden = arch.hidden;
+    const act = sharedChoice(p, "ac", ["tanh", "relu", "sigmoid"] as const);
+    if (act) patch.activation = act;
+    if (Object.keys(patch).length) setParams((prev) => ({ ...prev, ...patch }));
+  });
 
   const nClasses = dataset.classNames.length;
   const split = React.useMemo(() => splitDataset(dataset, trainRatio, 777), [dataset, trainRatio]);
@@ -399,7 +440,26 @@ export function PlaygroundLab() {
             />
 
             <Divider label="Données" />
-            <DatasetControls />
+            <DatasetControls
+              shareParams={{
+                a: algo,
+                k: params.k,
+                w: params.weighted,
+                dp: params.maxDepth,
+                lf: params.minSamplesLeaf,
+                cr: params.criterion,
+                nt: params.nTrees,
+                C: params.C,
+                kn: params.kernel,
+                g: params.gamma,
+                dg: params.degree,
+                lr: params.learningRate,
+                ep: params.epochs,
+                l2: params.l2,
+                h: ARCHITECTURES.find((x) => x.hidden.join("-") === params.hidden.join("-"))?.value,
+                ac: params.activation,
+              }}
+            />
           </>
         }
         below={

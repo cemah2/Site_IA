@@ -7,6 +7,7 @@ import { cx } from "@/components/ui";
 import { findNav, neighbours } from "@/lib/nav";
 import { Sidebar } from "./Sidebar";
 import { CourseVisitTracker } from "@/components/lab/CourseProgress";
+import { PermalinkLoader } from "@/components/lab/ShareLink";
 
 /**
  * The frame every page sits in: a persistent left rail on desktop, a drawer on
@@ -31,6 +32,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh">
       <CourseVisitTracker />
+      <PermalinkLoader />
       {/* Desktop rail */}
       <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 border-r border-line bg-surface-1/50 lg:block">
         <Sidebar />

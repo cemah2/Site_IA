@@ -27,6 +27,8 @@ interface LabState {
   /** Direct edits from the plot (drag, add, delete, relabel). */
   setDataset: (dataset: Dataset) => void;
   regenerate: () => void;
+  /** Restore several settings in one go — used when opening a shared link. */
+  applyParams: (patch: Partial<Pick<LabState, "kind" | "n" | "noise" | "seed" | "nClasses" | "trainRatio">>) => void;
 }
 
 const DEFAULTS = {
@@ -82,4 +84,29 @@ export const useLab = create<LabState>((set, get) => ({
     }),
   setDataset: (dataset) => set({ dataset }),
   regenerate: () => set((s) => ({ dataset: build(s) })),
+
+  /**
+   * Apply several settings at once, rebuilding the data a single time.
+   *
+   * Restoring a shared link through the individual setters would regenerate the
+   * dataset five times and, worse, would pass through intermediate states that
+   * never existed — a class count that the chosen generator does not allow, for
+   * instance. One transaction, one dataset.
+   */
+  applyParams: (patch) =>
+    set((s) => {
+      const kind = patch.kind ?? s.kind;
+      const next = {
+        kind,
+        n: patch.n ?? s.n,
+        noise: patch.noise ?? s.noise,
+        seed: patch.seed ?? s.seed,
+        nClasses: classCountFor(kind, patch.nClasses ?? s.nClasses),
+      };
+      return {
+        ...next,
+        trainRatio: patch.trainRatio ?? s.trainRatio,
+        dataset: build(next),
+      };
+    }),
 }));

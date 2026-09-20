@@ -22,12 +22,23 @@ import {
 import { formatNumber, formatPercent } from "@/lib/viz/geometry";
 import { classColor, CHROME, withAlpha } from "@/lib/viz/palette";
 import { useLab } from "@/store/lab";
+import { useSharedInit } from "@/lib/hooks/useSharedInit";
+import { sharedChoice, sharedNumber } from "@/lib/permalink";
 
 export function DecisionTreeLab() {
   const { dataset, setDataset } = useLab();
   const [maxDepth, setMaxDepth] = React.useState(3);
   const [minSamplesLeaf, setMinSamplesLeaf] = React.useState(4);
   const [criterion, setCriterion] = React.useState<Criterion>("gini");
+
+  useSharedInit((p) => {
+    const d = sharedNumber(p, "dp", 1, 12);
+    if (d !== undefined) setMaxDepth(Math.round(d));
+    const l = sharedNumber(p, "lf", 1, 40);
+    if (l !== undefined) setMinSamplesLeaf(Math.round(l));
+    const c = sharedChoice(p, "cr", ["gini", "entropy"] as const);
+    if (c) setCriterion(c as Criterion);
+  });
   const [selectedId, setSelectedId] = React.useState<number | null>(0);
   const [query, setQuery] = React.useState<[number, number] | null>(null);
   const [walkStep, setWalkStep] = React.useState(0);
@@ -265,7 +276,9 @@ export function DecisionTreeLab() {
               </p>
             )}
             <Divider label="Données" />
-            <DatasetControls />
+            <DatasetControls
+              shareParams={{ dp: maxDepth, lf: minSamplesLeaf, cr: criterion }}
+            />
           </>
         }
         below={

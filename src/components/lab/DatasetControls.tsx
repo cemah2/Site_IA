@@ -4,6 +4,8 @@ import * as React from "react";
 import { Button, Divider, Segmented, Select, Slider } from "@/components/ui";
 import { DATASET_SPECS, type DatasetId } from "@/lib/ml/datasets";
 import { useLab } from "@/store/lab";
+import { ShareLink } from "./ShareLink";
+import type { ShareValue } from "@/lib/permalink";
 
 /**
  * The dataset controls, identical on every page.
@@ -16,10 +18,13 @@ export function DatasetControls({
   showClasses = true,
   showCount = true,
   compact = false,
+  shareParams,
 }: {
   showClasses?: boolean;
   showCount?: boolean;
   compact?: boolean;
+  /** Page settings to include in the shareable link, beside the dataset. */
+  shareParams?: Record<string, ShareValue>;
 }) {
   const { kind, setKind, n, setN, noise, setNoise, nClasses, setNClasses, reseed } = useLab();
   const spec = DATASET_SPECS.find((s) => s.id === kind)!;
@@ -64,6 +69,12 @@ export function DatasetControls({
       <Button onClick={reseed} className="w-full">
         Regénérer les données
       </Button>
+      <ShareLink
+        params={shareParams}
+        label={
+          shareParams ? "Copier le lien de cette configuration" : "Copier le lien de ce jeu de données"
+        }
+      />
     </div>
   );
 }

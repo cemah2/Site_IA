@@ -17,6 +17,8 @@ import { type KernelKind } from "@/lib/ml/models/svm";
 import { formatNumber, formatPercent } from "@/lib/viz/geometry";
 import { classColor, CHROME } from "@/lib/viz/palette";
 import { useLab } from "@/store/lab";
+import { useSharedInit } from "@/lib/hooks/useSharedInit";
+import { sharedChoice, sharedNumber } from "@/lib/permalink";
 
 const C_STEPS = [0.03, 0.1, 0.3, 1, 3, 10, 30, 100];
 
@@ -27,6 +29,17 @@ export function SvmLab() {
   const [gamma, setGamma] = React.useState(1);
   const [degree, setDegree] = React.useState(3);
   const [showMargin, setShowMargin] = React.useState(true);
+
+  useSharedInit((p) => {
+    const ci = sharedNumber(p, "ci", 0, 12);
+    if (ci !== undefined) setCIndex(Math.round(ci));
+    const k = sharedChoice(p, "kn", ["linear", "rbf", "poly"] as const);
+    if (k) setKernel(k as KernelKind);
+    const g = sharedNumber(p, "g", 0.01, 20);
+    if (g !== undefined) setGamma(g);
+    const d = sharedNumber(p, "dg", 2, 6);
+    if (d !== undefined) setDegree(Math.round(d));
+  });
 
   const C = C_STEPS[cIndex];
   const nClasses = dataset.classNames.length;
@@ -236,7 +249,10 @@ export function SvmLab() {
               hint={binary ? undefined : "Disponible uniquement en classification binaire."}
             />
             <Divider label="Données" />
-            <DatasetControls showClasses={false} />
+            <DatasetControls
+              showClasses={false}
+              shareParams={{ ci: cIndex, kn: kernel, g: gamma, dg: degree }}
+            />
           </>
         }
         below={
