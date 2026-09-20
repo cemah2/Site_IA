@@ -49,6 +49,13 @@ export const COURSE: CourseChapter[] = [
         outcome: "Vous reconnaîtrez les problèmes qu'une droite peut résoudre et ceux qu'elle ne peut pas.",
         minutes: 6,
       },
+      {
+        href: "/donnees/vos-donnees/",
+        title: "Vos propres données",
+        outcome:
+          "Vous saurez amener un fichier à vous sur le site, choisir les colonnes qui portent l'information, et pourquoi les échelles comptent.",
+        minutes: 8,
+      },
     ],
   },
   {

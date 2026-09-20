@@ -25,6 +25,7 @@ export const NAV: NavSection[] = [
       { href: "/donnees/features/", label: "Features", blurb: "Ce que le modèle voit réellement" },
       { href: "/donnees/datasets/", label: "Datasets", blurb: "Dix formes, dix difficultés" },
       { href: "/donnees/espace-3d/", label: "Espace 2D / 3D", blurb: "Hyperplan, projection, distance" },
+      { href: "/donnees/vos-donnees/", label: "Vos propres données", blurb: "Importez un CSV, tout le site tourne dessus" },
     ],
   },
   {

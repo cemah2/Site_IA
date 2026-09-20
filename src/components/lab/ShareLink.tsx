@@ -10,6 +10,7 @@ import {
   shareUrl,
   type ShareValue,
 } from "@/lib/permalink";
+import { loadImported } from "@/lib/imported-store";
 import { useLab } from "@/store/lab";
 
 const VALID_KINDS = DATASET_SPECS.map((s) => s.id);
@@ -77,14 +78,23 @@ export function ShareLink({
  */
 export function PermalinkLoader() {
   const applyParams = useLab((s) => s.applyParams);
+  const adoptImported = useLab((s) => s.adoptImported);
   const done = React.useRef(false);
 
   React.useEffect(() => {
     if (done.current) return;
     done.current = true;
     const patch = decodeDatasetParams(readHashParams(), VALID_KINDS);
-    if (Object.keys(patch).length) applyParams(patch);
-  }, [applyParams]);
+    if (Object.keys(patch).length) {
+      // A link's settings win over a stored import: following a link is an
+      // explicit request for that configuration, and silently substituting the
+      // reader's own file would show them something the sender never saw.
+      applyParams(patch);
+      return;
+    }
+    const stored = loadImported();
+    if (stored) adoptImported(stored);
+  }, [applyParams, adoptImported]);
 
   return null;
 }

@@ -26,8 +26,39 @@ export function DatasetControls({
   /** Page settings to include in the shareable link, beside the dataset. */
   shareParams?: Record<string, ShareValue>;
 }) {
-  const { kind, setKind, n, setN, noise, setNoise, nClasses, setNClasses, reseed } = useLab();
+  const { kind, setKind, n, setN, noise, setNoise, nClasses, setNClasses, reseed, imported, clearImported } =
+    useLab();
   const spec = DATASET_SPECS.find((s) => s.id === kind)!;
+
+  // When the reader has imported a file, the generator controls would silently
+  // throw it away on the first touch. Saying so, and offering the way back, is
+  // the difference between a feature and a trap.
+  if (imported) {
+    return (
+      <div className="space-y-3">
+        <div className="rounded-lg border border-accent/35 bg-accent/[0.06] px-3 py-2.5">
+          <p className="text-[12px] font-medium text-ink">Vos données</p>
+          <p className="mt-0.5 text-[11px] leading-snug text-ink-2">
+            {imported.name} · {imported.samples.length} points ·{" "}
+            {imported.classNames.length} classes ({imported.classNames.join(", ")})
+          </p>
+          <p className="mt-1 text-[10.5px] leading-snug text-ink-muted">
+            {imported.featureNames[0]} en abscisse, {imported.featureNames[1]} en ordonnée.
+          </p>
+        </div>
+        <Button onClick={clearImported} className="w-full">
+          Revenir aux données générées
+        </Button>
+        <a
+          href="/donnees/vos-donnees/"
+          className="block text-center text-[11px] text-accent hover:underline"
+        >
+          Changer de colonnes ou de fichier →
+        </a>
+        <ShareLink params={shareParams} label="Copier le lien de cette configuration" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3.5">
