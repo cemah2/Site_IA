@@ -29,7 +29,9 @@ export function TexBlock({ children, className }: { children: string; className?
   const html = React.useMemo(() => render(children, true), [children]);
   return (
     <div
-      className={cx("overflow-x-auto py-1 text-ink", className)}
+      // `min-w-0` makes `overflow-x-auto` actually do something here: without
+      // it the block still claims its full intrinsic width from the layout.
+      className={cx("min-w-0 overflow-x-auto py-1 text-ink", className)}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

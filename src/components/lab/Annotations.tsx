@@ -25,6 +25,10 @@ export interface Annotation {
  * They are `aria-hidden`: the same information is in the panel's subtitle and
  * legend, which a screen reader already gets in a better order.
  */
+/** Wraps on a phone, stays on one line once there is room for it. */
+const LABEL =
+  "max-w-[46vw] rounded-md border border-accent/40 bg-surface-2/95 px-2 py-1 text-[11px] leading-snug text-ink shadow-lg backdrop-blur-sm sm:max-w-none sm:whitespace-nowrap";
+
 export function Annotations({
   items,
   storageKey,
@@ -41,7 +45,10 @@ export function Annotations({
 
   return (
     <div
-      className={cx("pointer-events-none absolute inset-0 z-20", className)}
+      // `overflow-hidden`: a label anchored near the right edge is wider than
+      // what is left of a phone screen, and without clipping it would widen the
+      // whole document and give the page a horizontal scrollbar.
+      className={cx("pointer-events-none absolute inset-0 z-20 overflow-hidden", className)}
       aria-hidden
       onPointerDownCapture={dismiss}
     >
@@ -58,21 +65,17 @@ export function Annotations({
           <div className="flex items-center gap-1.5">
             {a.side === "left" && (
               <>
-                <span className="whitespace-nowrap rounded-md border border-accent/40 bg-surface-2/95 px-2 py-1 text-[11px] text-ink shadow-lg backdrop-blur-sm">
-                  {a.text}
-                </span>
+                <span className={LABEL}>{a.text}</span>
                 <span
-                  className="h-px w-5"
+                  className="h-px w-5 shrink-0"
                   style={{ background: CHROME.accent }}
                 />
               </>
             )}
             {a.side !== "left" && (
               <>
-                <span className="h-px w-5" style={{ background: CHROME.accent }} />
-                <span className="whitespace-nowrap rounded-md border border-accent/40 bg-surface-2/95 px-2 py-1 text-[11px] text-ink shadow-lg backdrop-blur-sm">
-                  {a.text}
-                </span>
+                <span className="h-px w-5 shrink-0" style={{ background: CHROME.accent }} />
+                <span className={LABEL}>{a.text}</span>
               </>
             )}
           </div>

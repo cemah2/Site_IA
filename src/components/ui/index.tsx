@@ -34,7 +34,12 @@ export function Panel({
   return (
     <section
       className={cx(
-        "rounded-xl border border-line bg-surface-1/80 backdrop-blur-[2px]",
+        // `min-w-0`: a grid or flex child defaults to min-width:auto, so a wide
+        // formula or a fixed-size figure inside a panel makes the whole column
+        // wider than its track — and the page gets a horizontal scrollbar on a
+        // phone. Letting the panel shrink pushes the scrolling inside, where it
+        // belongs.
+        "min-w-0 rounded-xl border border-line bg-surface-1/80 backdrop-blur-[2px]",
         className,
       )}
     >
