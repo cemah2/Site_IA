@@ -464,7 +464,8 @@ export function SpaceLab() {
               <p>
                 Les autres pages travaillent volontairement avec deux features. Ce n&apos;est pas
                 une limite technique : c&apos;est la seule dimension où l&apos;on peut{" "}
-                <strong>voir la frontière de décision en entier</strong>, partout, y compris là
+                <strong>voir la <G t="frontiere">frontière de décision</G> en entier</strong>,
+                partout, y compris là
                 où il n&apos;y a pas de données.
               </p>
               <p>

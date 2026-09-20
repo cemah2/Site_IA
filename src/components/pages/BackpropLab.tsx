@@ -420,7 +420,8 @@ export function BackpropLab() {
                     />
                     <p className="mt-2 text-[11px] leading-relaxed text-ink-2">
                       Cliquez sur <strong>Appliquer cette itération</strong> : les poids
-                      changent, la frontière de décision bouge, et la loss sur ce point est
+                      changent, la <G t="frontiere">frontière de décision</G> bouge, et la{" "}
+                      <G t="loss">loss</G> sur ce point est
                       recalculée avant/après.
                     </p>
                     <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">

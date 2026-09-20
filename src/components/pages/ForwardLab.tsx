@@ -229,9 +229,10 @@ export function ForwardLab() {
               </Button>
             </div>
             <p className="text-[11px] leading-snug text-ink-muted">
-              Un réseau non entraîné donne des activations sans signification. Entraînez-le un
-              peu, puis regardez à nouveau : les neurones cachés se mettent à réagir à des
-              zones précises du plan.
+              Un réseau non entraîné donne des <G t="activation">activations</G> sans
+              signification. Entraînez-le un peu, puis regardez à nouveau : les{" "}
+              <G t="neurone">neurones</G> de la <G t="couche">couche cachée</G> se mettent à
+              réagir à des zones précises du plan.
             </p>
           </>
         }

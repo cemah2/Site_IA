@@ -77,7 +77,8 @@ export function ClusteringLab() {
           Jusqu&apos;ici, chaque point portait une étiquette. Enlevez-la : le problème change de
           nature. Il ne s&apos;agit plus de <em>prédire</em> une classe connue, mais de{" "}
           <strong>découvrir</strong> s&apos;il existe des groupes. C&apos;est
-          l&apos;apprentissage non supervisé, et K-means en est l&apos;exemple le plus clair.
+          l&apos;<G t="nonsupervise">apprentissage non supervisé</G>, et K-means en est
+          l&apos;exemple le plus clair.
         </>
       }
       wide

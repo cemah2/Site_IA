@@ -86,18 +86,19 @@ export function OverfittingLab() {
                 <strong>Sous-apprentissage</strong> : le modèle est trop contraint pour
                 représenter la vraie relation. Les deux erreurs sont élevées, et elles sont
                 proches. Plus de données n&apos;aide pas — c&apos;est un problème de{" "}
-                <em>biais</em>.
+                <em><G t="biais">biais</G></em>.
               </p>
               <p>
                 <strong>Surapprentissage</strong> : le modèle a assez de liberté pour épouser le
                 bruit. L&apos;erreur d&apos;entraînement est très basse, celle de validation est
                 haute, et l&apos;écart entre les deux est le symptôme. Plus de données aide —
-                c&apos;est un problème de <em>variance</em>.
+                c&apos;est un problème de <em><G t="variance">variance</G></em>.
               </p>
               <p>
                 <strong>La capacité n&apos;est pas qu&apos;une question de paramètres.</strong>{" "}
                 Elle dépend aussi du nombre d&apos;exemples, de la durée d&apos;entraînement, et
-                de la régularisation. Un même réseau peut sous-apprendre à 10 epochs et
+                de la <G t="regularisation">régularisation</G>. Un même réseau peut
+                sous-apprendre à 10 <G t="epoch">epochs</G> et
                 surapprendre à 10 000.
               </p>
               <p>

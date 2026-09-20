@@ -119,7 +119,8 @@ export function ActivationsLab() {
           </div>
           <Callout kind="warning" title="Le calcul est brutal" >
             Ce sont les <em>meilleurs</em> cas. La dérivée de la sigmoid vaut au mieux 0,25 — et
-            seulement en <Tex>z = 0</Tex>. Après 10 couches, le gradient qui atteint la première
+            seulement en <Tex>z = 0</Tex>. Après 10 couches, le <G t="gradient">gradient</G> qui
+            atteint la première
             couche est au mieux <Tex>{String.raw`0{,}25^{10} \approx 10^{-6}`}</Tex> fois celui
             de la dernière. Les premières couches n&apos;apprennent pratiquement rien.
             <br />

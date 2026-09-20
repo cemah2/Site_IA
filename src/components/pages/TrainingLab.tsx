@@ -107,7 +107,7 @@ export function TrainingLab() {
           Tout ce que les pages précédentes ont décrit séparément, en boucle et simultanément :
           les poids changent, la frontière se déforme, la loss descend. Regardez surtout{" "}
           <strong>l&apos;écart entre la courbe d&apos;entraînement et celle de test</strong> —
-          c&apos;est là que se lit le surapprentissage.
+          c&apos;est là que se lit le <G t="overfitting">surapprentissage</G>.
         </>
       }
       wide

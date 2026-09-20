@@ -433,7 +433,8 @@ export function RegularisationLab() {
                 <Tex>{String.raw`\lambda`}</Tex> fini.
               </p>
               <p>
-                <strong>Weight decay.</strong> Dans une descente de gradient, la pénalité{" "}
+                <strong>Weight decay.</strong> Dans une{" "}
+                <G t="descente">descente de gradient</G>, la pénalité{" "}
                 <Tex>L_2</Tex> donne :
               </p>
               <LiveFormula

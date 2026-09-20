@@ -367,7 +367,8 @@ export function LinearRegressionLab() {
               <p>
                 La régression linéaire a une <strong>solution exacte</strong>, obtenue en
                 annulant les dérivées du coût. Pas d&apos;itérations, pas
-                d&apos;hyperparamètres, pas de hasard : deux formules donnent directement le
+                d&apos;<G t="hyperparametre">hyperparamètres</G>, pas de hasard : deux formules
+                donnent directement le
                 résultat.
               </p>
               <p>

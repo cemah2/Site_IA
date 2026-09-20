@@ -231,8 +231,9 @@ export function NeuronLab() {
             </Panel>
 
             <Callout kind="insight" title="L'expérience qui explique tout">
-              Mettez l&apos;activation sur <strong>Aucune</strong>. Le neurone devient une
-              régression linéaire — la couleur varie en dégradé continu, sans seuil.
+              Mettez l&apos;<G t="activation">activation</G> sur <strong>Aucune</strong>. Le
+              neurone devient une <a href="/regression/lineaire/">régression linéaire</a> — la
+              couleur varie en dégradé continu, sans seuil.
               <br />
               <br />
               Repassez sur <strong>Tanh</strong> : une zone de transition apparaît autour de la

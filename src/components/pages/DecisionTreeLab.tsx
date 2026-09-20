@@ -448,7 +448,8 @@ export function DecisionTreeLab() {
               <p>
                 L&apos;arbre fait pareil, en testant toutes les questions possibles et en gardant
                 celle qui sépare le mieux. Cette mesure de « à quel point c&apos;est mélangé » est
-                l&apos;<strong>impureté</strong>, et la réduction obtenue est le{" "}
+                l&apos;<strong><G t="impurete">impureté</G></strong>, et la réduction obtenue
+                est le{" "}
                 <strong>gain</strong>.
               </p>
               <p>
