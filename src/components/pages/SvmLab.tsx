@@ -9,9 +9,9 @@ import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
 import { KernelLift } from "@/components/viz/KernelLift";
 import { DatasetControls } from "@/components/lab/DatasetControls";
-import { computeField } from "@/lib/ml/field";
-import { evaluate } from "@/lib/ml/metrics";
-import { Svm, type KernelKind } from "@/lib/ml/models/svm";
+import { useAsyncFit } from "@/lib/hooks/useAsyncFit";
+import { DEFAULT_PARAMS } from "@/lib/ml/registry";
+import { type KernelKind } from "@/lib/ml/models/svm";
 import { formatNumber, formatPercent } from "@/lib/viz/geometry";
 import { classColor, CHROME } from "@/lib/viz/palette";
 import { useLab } from "@/store/lab";
@@ -30,51 +30,49 @@ export function SvmLab() {
   const nClasses = dataset.classNames.length;
   const binary = nClasses === 2;
 
-  const opts = React.useMemo(
-    () => ({ C, kernel, gamma, degree, epochs: 80, tol: 1e-3 }),
+  const params = React.useMemo(
+    () => ({ ...DEFAULT_PARAMS, C, kernel, gamma, degree }),
     [C, kernel, gamma, degree],
   );
 
-  const model = React.useMemo(
-    () => new Svm(dataset.samples, nClasses, opts),
-    [dataset.samples, nClasses, opts],
-  );
+  // Fitting an SVM is the most expensive thing the site does: SMO re-solves the
+  // whole dual every time a point moves. On the main thread that dropped the
+  // page to 8 fps and froze the surface for the length of a drag, so both the
+  // fit and the two grid sweeps happen in a worker.
+  const fit = useAsyncFit({
+    algo: "svm",
+    dataset,
+    params,
+    resolution: 110,
+    wantDecisionGrid: binary && showMargin,
+  });
 
-  const deferred = React.useDeferredValue(model);
-  const field = React.useMemo(
-    () => computeField(deferred, dataset.domain, 96),
-    [deferred, dataset.domain],
-  );
-
+  const field = fit.field;
+  const evaluation = fit.evaluation;
   const supportIds = React.useMemo(
-    () => model.supportVectorIds(dataset.samples),
-    [model, dataset.samples],
-  );
-  const evaluation = React.useMemo(
-    () => evaluate(model, dataset.samples, dataset.classNames),
-    [model, dataset],
+    () => new Set(fit.extra.supportIds ?? []),
+    [fit.extra.supportIds],
   );
 
-  // Margin isolines: the ±1 level sets of the decision function. For the linear
-  // kernel these are the two parallel lines the classic picture shows; for RBF
+  // Margin isolines: the ±1 level sets of the decision function. For a linear
+  // kernel these are the two parallel lines of the classic picture; with RBF
   // they are curves, which is worth seeing rather than being told.
   const marginField = React.useMemo(() => {
-    if (!binary || !showMargin) return null;
-    const res = 130;
-    const [[xMin, xMax], [yMin, yMax]] = dataset.domain;
-    const values = new Float32Array(res * res);
-    for (let j = 0; j < res; j++) {
-      const y = yMin + ((yMax - yMin) * (j + 0.5)) / res;
-      for (let i = 0; i < res; i++) {
-        const x = xMin + ((xMax - xMin) * (i + 0.5)) / res;
-        values[j * res + i] = deferred.models[0].decision([x, y]);
-      }
-    }
-    return { res, values, xMin, xMax, yMin, yMax };
-  }, [deferred, dataset.domain, binary, showMargin]);
+    const grid = fit.extra.decisionGrid;
+    if (!grid || !field || !binary || !showMargin) return null;
+    return {
+      res: field.res,
+      values: grid,
+      xMin: field.xMin,
+      xMax: field.xMax,
+      yMin: field.yMin,
+      yMax: field.yMax,
+    };
+  }, [fit.extra.decisionGrid, field, binary, showMargin]);
 
   const counts = dataset.classNames.map((_, i) => dataset.samples.filter((s) => s.y === i).length);
-  const weights = binary ? model.models[0].weights() : null;
+  const weights = binary ? (fit.extra.weights ?? null) : null;
+  const bias = fit.extra.bias ?? 0;
 
   return (
     <PageShell
@@ -108,7 +106,7 @@ export function SvmLab() {
                 aspect={1}
                 styleFor={(s) => {
                   if (supportIds.has(s.id)) return { ring: CHROME.ink, scale: 1.12 };
-                  if (evaluation.wrongIds.includes(s.id)) return { wrong: true, dim: true };
+                  if (evaluation?.wrongIds.includes(s.id)) return { wrong: true, dim: true };
                   return { dim: true };
                 }}
                 overlay={(frame) =>
@@ -248,8 +246,8 @@ export function SvmLab() {
               />
               <Stat
                 label="Accuracy"
-                value={formatPercent(evaluation.accuracy)}
-                tone={evaluation.accuracy > 0.9 ? "good" : "neutral"}
+                value={evaluation ? formatPercent(evaluation.accuracy) : "—"}
+                tone={evaluation && evaluation.accuracy > 0.9 ? "good" : "neutral"}
               />
             </div>
 
@@ -260,7 +258,7 @@ export function SvmLab() {
                   terms={[
                     { symbol: "w_1", value: formatNumber(weights[0], 3) },
                     { symbol: "w_2", value: formatNumber(weights[1], 3) },
-                    { symbol: "b", value: formatNumber(model.models[0].b, 3) },
+                    { symbol: "b", value: formatNumber(bias, 3) },
                     {
                       symbol: String.raw`\text{marge} = 2/\lVert w \rVert`,
                       value: formatNumber(2 / (Math.hypot(weights[0], weights[1]) || 1), 3),
@@ -273,7 +271,7 @@ export function SvmLab() {
                     tex={String.raw`f(x) = \sum_{i \in SV} \alpha_i y_i \, K(x_i, x) + b`}
                     terms={[
                       { symbol: String.raw`|SV|`, value: supportIds.size },
-                      { symbol: "b", value: formatNumber(model.models[0]?.b ?? 0, 3) },
+                      { symbol: "b", value: formatNumber(bias, 3) },
                     ]}
                   />
                   <p className="mt-2 text-[11px] leading-snug text-ink-muted">

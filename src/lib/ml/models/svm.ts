@@ -61,6 +61,16 @@ export class BinarySvm {
   readonly y: Int8Array;
   readonly X: number[][];
   readonly supportIndices: number[] = [];
+  /**
+   * The Gram matrix, computed once.
+   *
+   * SMO evaluates the decision function at training points on every inner
+   * iteration, so a naive implementation recomputes the same kernel values
+   * millions of times — for an RBF kernel that is millions of `exp()` calls,
+   * and it was the single slowest thing on the site. Caching costs n² doubles
+   * (200 KB at n = 160) and turns the inner loop into array reads.
+   */
+  private readonly K: Float64Array;
 
   constructor(
     samples: Sample[],
@@ -73,9 +83,31 @@ export class BinarySvm {
     for (let i = 0; i < n; i++) this.y[i] = samples[i].y === positiveClass ? 1 : -1;
     this.alpha = new Float64Array(n);
 
+    // Symmetric, so only half of it is actually computed.
+    this.K = new Float64Array(n * n);
+    for (let i = 0; i < n; i++) {
+      for (let j = i; j < n; j++) {
+        const v = kernel(this.X[i], this.X[j], opts);
+        this.K[i * n + j] = v;
+        this.K[j * n + i] = v;
+      }
+    }
+
     this.smo();
 
     for (let i = 0; i < n; i++) if (this.alpha[i] > 1e-6) this.supportIndices.push(i);
+  }
+
+  /** Decision value at training point `i`, straight out of the cache. */
+  private fAt(i: number): number {
+    const n = this.X.length;
+    let s = this.b;
+    for (let k = 0; k < n; k++) {
+      const a = this.alpha[k];
+      if (a === 0) continue;
+      s += a * this.y[k] * this.K[k * n + i];
+    }
+    return s;
   }
 
   private f(x: number[]): number {
@@ -96,7 +128,7 @@ export class BinarySvm {
       let changed = 0;
 
       for (let i = 0; i < n; i++) {
-        const Ei = this.f(this.X[i]) - this.y[i];
+        const Ei = this.fAt(i) - this.y[i];
         const ai = this.alpha[i];
         // KKT violation check: only pairs that break the optimality conditions
         // are worth optimising.
@@ -106,7 +138,7 @@ export class BinarySvm {
         const j = (i * 7919 + epoch * 104729) % n;
         if (j === i) continue;
 
-        const Ej = this.f(this.X[j]) - this.y[j];
+        const Ej = this.fAt(j) - this.y[j];
         const aj = this.alpha[j];
 
         let L: number;
@@ -120,9 +152,9 @@ export class BinarySvm {
         }
         if (L >= H) continue;
 
-        const kii = kernel(this.X[i], this.X[i], this.opts);
-        const kjj = kernel(this.X[j], this.X[j], this.opts);
-        const kij = kernel(this.X[i], this.X[j], this.opts);
+        const kii = this.K[i * n + i];
+        const kjj = this.K[j * n + j];
+        const kij = this.K[i * n + j];
         const eta = 2 * kij - kii - kjj;
         if (eta >= -1e-12) continue;
 

@@ -1,11 +1,12 @@
 "use client";
 
-import { Canvas, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import { Line, OrbitControls } from "@react-three/drei";
 import * as React from "react";
 import * as THREE from "three";
 import { ClientOnly } from "@/components/ui/ClientOnly";
 import { classColor, CHROME } from "@/lib/viz/palette";
+import { Viz3DCanvas } from "./Viz3D";
 
 export interface Point3 {
   id: number;
@@ -54,7 +55,7 @@ export function Scatter3D({
       style={{ height }}
     >
       <ClientOnly fallback={<div className="h-full w-full animate-pulse bg-surface-2/40" />}>
-        <Canvas camera={{ position: [5.6, 4.2, 5.6], fov: 42 }} dpr={[1, 2]}>
+        <Viz3DCanvas camera={{ position: [5.6, 4.2, 5.6], fov: 42 }} dpr={[1, 2]}>
           <ambientLight intensity={1.35} />
           <directionalLight position={[5, 8, 5]} intensity={0.7} />
           <Axes labels={axisLabels} />
@@ -108,7 +109,7 @@ export function Scatter3D({
             maxDistance={18}
             maxPolarAngle={Math.PI / 1.7}
           />
-        </Canvas>
+        </Viz3DCanvas>
       </ClientOnly>
 
       <div className="pointer-events-none absolute bottom-2.5 left-3 flex gap-3 text-[10px] text-ink-muted">

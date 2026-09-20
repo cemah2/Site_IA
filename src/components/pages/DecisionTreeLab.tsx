@@ -42,10 +42,12 @@ export function DecisionTreeLab() {
     [dataset.samples, nClasses, maxDepth, minSamplesLeaf, criterion],
   );
 
-  const deferred = React.useDeferredValue(tree);
+  // No deferral here: fitting a shallow tree and sweeping its (piecewise
+  // constant) surface costs a couple of milliseconds, and deferring meant the
+  // boundary redrew once during a four-second drag instead of following it.
   const field = React.useMemo(
-    () => computeField(deferred, dataset.domain, 128),
-    [deferred, dataset.domain],
+    () => computeField(tree, dataset.domain, 128),
+    [tree, dataset.domain],
   );
   const evaluation = React.useMemo(
     () => evaluate(tree, dataset.samples, dataset.classNames),

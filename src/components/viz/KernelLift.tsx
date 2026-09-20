@@ -1,14 +1,16 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+
 import { Line, OrbitControls } from "@react-three/drei";
+import { InstancedPoints } from "./InstancedPoints";
+import { Viz3DCanvas } from "./Viz3D";
 import * as React from "react";
 import * as THREE from "three";
 import { Button, Slider, cx } from "@/components/ui";
 import { ClientOnly } from "@/components/ui/ClientOnly";
 import type { Dataset } from "@/lib/ml/types";
 import type { KernelKind } from "@/lib/ml/models/svm";
-import { classColor, CHROME } from "@/lib/viz/palette";
+import { CHROME } from "@/lib/viz/palette";
 import { Tex } from "@/components/math/Math";
 
 /**
@@ -59,16 +61,21 @@ export function KernelLift({
     return () => cancelAnimationFrame(raf);
   }, [playing]);
 
+  // The 3-D panel illustrates an idea; it does not need to track every pointer
+  // move. Deferring its view of the data keeps a drag on the 2-D plot at 60 fps
+  // while the lifted cloud catches up a beat later.
+  const deferredSamples = React.useDeferredValue(dataset.samples);
+
   const points = React.useMemo(
     () =>
-      dataset.samples.map((s) => ({
+      deferredSamples.map((s) => ({
         id: s.id,
         x: s.x[0],
         y: s.x[1],
         z: s.x[0] ** 2 + s.x[1] ** 2,
         c: s.y,
       })),
-    [dataset.samples],
+    [deferredSamples],
   );
 
   const maxZ = React.useMemo(() => Math.max(1, ...points.map((p) => p.z)), [points]);
@@ -81,25 +88,21 @@ export function KernelLift({
         <ClientOnly
           fallback={<div className="h-full w-full animate-pulse bg-surface-2/40" />}
         >
-          <Canvas camera={{ position: [5.1, 3.4, 5.1], fov: 42 }} dpr={[1, 2]}>
+          {/* `frameloop="demand"` is load-bearing, not a micro-optimisation:
+              R3F's default renders every frame forever, which held the main
+              thread busy and dropped this page to 12 fps during a drag even
+              with the model fitting already moved off it. On demand, the scene
+              redraws only when something actually changes. */}
+          <Viz3DCanvas camera={{ position: [5.1, 3.4, 5.1], fov: 42 }} dpr={[1, 2]}>
             <ambientLight intensity={1.4} />
             <directionalLight position={[5, 8, 5]} intensity={0.7} />
 
             <GroundGrid />
 
-            {points.map((p) => (
-              <mesh
-                key={p.id}
-                position={[p.x, p.z * zScale * lift, -p.y]}
-              >
-                <sphereGeometry args={[0.085, 14, 14]} />
-                <meshStandardMaterial
-                  color={classColor(p.c)}
-                  roughness={0.45}
-                  metalness={0.05}
-                />
-              </mesh>
-            ))}
+            <InstancedPoints
+              points={points}
+              positionOf={(p) => [p.x, p.z * zScale * lift, -p.y]}
+            />
 
             {/* The separating plane: meaningless at lift = 0 (nothing to
                 separate), so it fades in with the lift. */}
@@ -122,7 +125,7 @@ export function KernelLift({
               maxDistance={16}
               maxPolarAngle={Math.PI / 2.05}
             />
-          </Canvas>
+          </Viz3DCanvas>
         </ClientOnly>
 
         <div className="pointer-events-none absolute left-3 top-3 rounded-md border border-line bg-surface-1/85 px-2.5 py-1.5 text-[11px] text-ink-2 backdrop-blur-sm">

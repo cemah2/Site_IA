@@ -5,6 +5,7 @@ import type { Dataset, Field, Sample } from "@/lib/ml/types";
 import { movePoint, relabelPoint, withoutPoint, withPoint } from "@/lib/ml/datasets";
 import { formatNumber } from "@/lib/viz/geometry";
 import { CHROME } from "@/lib/viz/palette";
+import { plotInteraction } from "@/lib/viz/interaction";
 import { DecisionField } from "./DecisionField";
 import { Plot, localPoint, type PlotFrame } from "./Plot";
 import { Points, type PointStyle } from "./Points";
@@ -89,6 +90,7 @@ export function DataPlot({
       return;
     }
     dragRef.current = { id: s.id, moved: false };
+    plotInteraction.begin();
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
   };
 
@@ -104,6 +106,7 @@ export function DataPlot({
 
   const handleUp = (e: React.PointerEvent<SVGSVGElement>, frame: PlotFrame) => {
     const wasDragging = dragRef.current;
+    if (wasDragging) plotInteraction.end();
     dragRef.current = null;
     if (wasDragging) return;
 
@@ -144,6 +147,7 @@ export function DataPlot({
         onPointerLeave={() => {
           setCursor(null);
           setHover(null);
+          if (dragRef.current) plotInteraction.end();
           dragRef.current = null;
         }}
         onContextMenu={(e) => {

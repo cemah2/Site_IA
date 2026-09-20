@@ -1,11 +1,12 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+
 import { Line, OrbitControls } from "@react-three/drei";
 import * as React from "react";
 import * as THREE from "three";
 import { ClientOnly } from "@/components/ui/ClientOnly";
 import { rampAt, SEQUENTIAL, CHROME, STATUS } from "@/lib/viz/palette";
+import { Viz3DCanvas } from "./Viz3D";
 
 export interface SurfacePoint {
   a: number;
@@ -128,7 +129,7 @@ export function CostSurface3D({
       style={{ height }}
     >
       <ClientOnly fallback={<div className="h-full w-full animate-pulse bg-surface-2/40" />}>
-        <Canvas camera={{ position: [5.4, 4.6, 5.4], fov: 42 }} dpr={[1, 2]}>
+        <Viz3DCanvas camera={{ position: [5.4, 4.6, 5.4], fov: 42 }} dpr={[1, 2]}>
           <ambientLight intensity={1.1} />
           <directionalLight position={[6, 9, 4]} intensity={0.85} />
 
@@ -165,7 +166,7 @@ export function CostSurface3D({
             maxDistance={18}
             maxPolarAngle={Math.PI / 2.02}
           />
-        </Canvas>
+        </Viz3DCanvas>
       </ClientOnly>
 
       <div className="pointer-events-none absolute bottom-2.5 left-3 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-ink-muted">
