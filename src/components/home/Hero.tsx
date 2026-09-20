@@ -10,6 +10,9 @@ import { DEFAULT_PARAMS, type AlgoId } from "@/lib/ml/registry";
 import { useFit } from "@/lib/hooks/useFit";
 import { formatPercent } from "@/lib/viz/geometry";
 import { useLab } from "@/store/lab";
+import { Tour } from "@/components/lab/Tour";
+import { Annotations } from "@/components/lab/Annotations";
+import { G } from "@/components/ui/Glossary";
 
 const QUICK_ALGOS: { value: AlgoId; label: string }[] = [
   { value: "centroid", label: "Centroïde" },
@@ -71,10 +74,74 @@ export function Hero() {
 
   return (
     <section className="border-b border-line bg-[radial-gradient(120%_80%_at_10%_-10%,rgba(37,132,245,0.09),transparent_60%)]">
+      <Tour
+        id="home"
+        steps={[
+          {
+            target: "plot",
+            title: "Voici des données",
+            body: (
+              <>
+                Chaque point est un exemple, décrit par deux nombres — sa position — et rangé
+                dans une catégorie, indiquée par sa couleur <em>et</em> sa forme. C&apos;est
+                tout ce qu&apos;un modèle voit du monde : des nombres et des étiquettes.
+              </>
+            ),
+            action: "Glissez un point pour le déplacer, ou cliquez dans le vide pour en ajouter un.",
+          },
+          {
+            target: "algo",
+            title: "Choisissez une méthode",
+            body: (
+              <>
+                Un algorithme est une recette pour transformer ces points en règle de décision.
+                Il en existe beaucoup, et ils ne font pas du tout la même chose des mêmes
+                données — c&apos;est le sujet de tout le site.
+              </>
+            ),
+            action: "Essayez « Centroïde », puis « Réseau » : ce sont les deux extrêmes.",
+          },
+          {
+            target: "train",
+            title: "Lancez l'apprentissage",
+            body: (
+              <>
+                Les quatre étapes se déroulent dans l&apos;ordre : les données, l&apos;algorithme
+                choisi, l&apos;apprentissage, puis le modèle obtenu. À la dernière étape, le
+                fond coloré apparaît : c&apos;est la réponse du modèle <strong>en tout point du
+                plan</strong>, y compris là où il n&apos;y a aucune donnée.
+              </>
+            ),
+            action: "Cliquez trois fois pour dérouler les quatre étapes.",
+          },
+          {
+            target: "dataset",
+            title: "Changez le problème",
+            body: (
+              <>
+                Certaines formes de données se séparent avec une droite, d&apos;autres pas du
+                tout. Le même algorithme peut donc réussir brillamment ici et échouer
+                complètement là.
+              </>
+            ),
+            action: "Passez sur « Cercles » en gardant l'algorithme « Centroïde ». Regardez le résultat.",
+          },
+        ]}
+      />
       <div className="mx-auto max-w-[1400px] px-5 py-10 lg:px-10 lg:py-16">
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,460px)] xl:items-center">
           <div className="order-2 xl:order-1">
-            <div className="rounded-xl border border-line bg-surface-1/80 p-3">
+            <div
+              className="relative rounded-xl border border-line bg-surface-1/80 p-3"
+              data-tour="plot"
+            >
+              <Annotations
+                storageKey="home-plot"
+                items={[
+                  { x: 30, y: 26, text: "Chaque point est un exemple", side: "right" },
+                  { x: 74, y: 62, text: "Sa couleur et sa forme sont sa classe", side: "left" },
+                ]}
+              />
               <DataPlot
                 dataset={dataset}
                 onChange={setDataset}
@@ -111,19 +178,23 @@ export function Hero() {
               une machine apprend.
             </h1>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-ink-2">
-              Ces points sont vos données. Déplacez-les, ajoutez-en, changez leur classe.
-              Puis choisissez un algorithme et regardez-le découper le plan. Tout se calcule
-              dans votre navigateur, en temps réel.
+              Ces points sont vos <G t="dataset">données</G>. Déplacez-les, ajoutez-en,
+              changez leur <G t="label">classe</G>. Puis choisissez un algorithme et
+              regardez-le découper le plan : c&apos;est sa{" "}
+              <G t="frontiere">frontière de décision</G>. Tout se calcule dans votre
+              navigateur, en temps réel.
             </p>
 
             <div className="mt-6 space-y-4 rounded-xl border border-line bg-surface-1/80 p-4">
-              <Segmented
-                label="Algorithme"
-                value={algo}
-                options={QUICK_ALGOS}
-                onChange={setAlgo}
-                size="sm"
-              />
+              <div data-tour="algo">
+                <Segmented
+                  label="Algorithme"
+                  value={algo}
+                  options={QUICK_ALGOS}
+                  onChange={setAlgo}
+                  size="sm"
+                />
+              </div>
 
               <ol className="space-y-1.5">
                 {STAGES.map((s, i) => {
@@ -165,7 +236,7 @@ export function Hero() {
                 })}
               </ol>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2" data-tour="train">
                 <Button
                   variant="primary"
                   onClick={() => setStage((s) => (s >= 3 ? 0 : ((s + 1) as Stage)))}
@@ -193,7 +264,7 @@ export function Hero() {
               )}
             </div>
 
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-3" data-tour="dataset">
               <Segmented
                 label="Forme du problème"
                 value={kind}

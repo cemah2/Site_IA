@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import * as React from "react";
 import { cx } from "@/components/ui";
 import { NAV } from "@/lib/nav";
+import { CourseProgressBar } from "@/components/lab/CourseProgress";
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -29,6 +30,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </Link>
 
       <div className="flex-1 overflow-y-auto px-3 py-4">
+        <CourseProgressBar className="mb-4" />
         {NAV.map((section) => (
           <div key={section.title} className="mb-5 last:mb-0">
             <h3 className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-muted">

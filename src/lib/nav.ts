@@ -15,6 +15,8 @@ export const NAV: NavSection[] = [
     title: "Commencer",
     items: [
       { href: "/", label: "Introduction", blurb: "Données → algorithme → modèle → prédiction" },
+      { href: "/parcours/", label: "Parcours guidé", blurb: "Le site comme un cours, dans l'ordre" },
+      { href: "/glossaire/", label: "Glossaire", blurb: "Tout le vocabulaire, sans prérequis" },
     ],
   },
   {
