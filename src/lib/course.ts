@@ -174,6 +174,13 @@ export const COURSE: CourseChapter[] = [
         outcome: "Vous saurez lire des courbes d'apprentissage et repérer un surapprentissage en direct.",
         minutes: 12,
       },
+      {
+        href: "/reseaux/chiffres/",
+        title: "Chiffres manuscrits",
+        outcome:
+          "Vous aurez entraîné vous-même un réseau à lire votre écriture, et vu les formes qu'il s'est inventées pour y arriver.",
+        minutes: 15,
+      },
     ],
   },
   {

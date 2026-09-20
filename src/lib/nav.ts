@@ -53,6 +53,7 @@ export const NAV: NavSection[] = [
       { href: "/reseaux/forward/", label: "Forward propagation", blurb: "Une donnée traverse le réseau" },
       { href: "/reseaux/backpropagation/", label: "Backpropagation", blurb: "L'erreur remonte et corrige les poids" },
       { href: "/reseaux/entrainement/", label: "Entraînement", blurb: "Loss, accuracy et frontière, epoch par epoch" },
+      { href: "/reseaux/chiffres/", label: "Chiffres manuscrits", blurb: "Dessinez, le réseau reconnaît — et vous voyez pourquoi" },
     ],
   },
   {
