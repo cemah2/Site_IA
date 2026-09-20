@@ -1,3 +1,16 @@
+import {
+  CHROME_DARK,
+  CHROME_LIGHT,
+  DIVERGING_DARK,
+  DIVERGING_LIGHT,
+  STATUS_DARK,
+  STATUS_LIGHT,
+  getTheme,
+  type ChromeColours,
+  type StatusColours,
+  type ThemeName,
+} from "./theme";
+
 /**
  * The chart palette, mirrored from the CSS custom properties in globals.css so
  * that canvas/WebGL code (which cannot read Tailwind classes) draws the same
@@ -27,27 +40,38 @@ export function classShape(i: number): ClassShape {
   return SHAPES[i] ?? "circle";
 }
 
-export const CHROME = {
-  plane: "#080b12",
-  surface1: "#10141b",
-  surface2: "#161c25",
-  surface3: "#1e2631",
-  line: "#232b37",
-  lineStrong: "#33404f",
-  ink: "#eef2f8",
-  ink2: "#9fabbd",
-  inkMuted: "#6b7686",
-  grid: "#1a212b",
-  axis: "#2e3947",
-  accent: "#7aa2ff",
-} as const;
+/**
+ * Drawing colours for the active theme.
+ *
+ * Mutated in place when the theme changes rather than replaced, because a
+ * hundred call sites read `CHROME.ink` during render and an exported binding
+ * cannot be reassigned across modules. The shell remounts its subtree on a
+ * theme switch, so every memo and every canvas redraws with the new values —
+ * which is what makes mutation safe here rather than merely convenient.
+ */
+const initial: ThemeName = getTheme();
 
-export const STATUS = {
-  good: "#0ca30c",
-  warning: "#fab219",
-  serious: "#ec835a",
-  critical: "#d03b3b",
-} as const;
+export const CHROME: ChromeColours = {
+  ...(initial === "light" ? CHROME_LIGHT : CHROME_DARK),
+};
+
+export const STATUS: StatusColours = {
+  ...(initial === "light" ? STATUS_LIGHT : STATUS_DARK),
+};
+
+/** Diverging ramp for signed quantities (residuals, gradients): blue <-> red
+ *  around a neutral midpoint. Never a hue at the midpoint. */
+export const DIVERGING: string[] = [
+  ...(initial === "light" ? DIVERGING_LIGHT : DIVERGING_DARK),
+];
+
+/** Swap every drawing colour to the given theme. Called by the theme toggle. */
+export function applyPaletteTheme(name: ThemeName): void {
+  Object.assign(CHROME, name === "light" ? CHROME_LIGHT : CHROME_DARK);
+  Object.assign(STATUS, name === "light" ? STATUS_LIGHT : STATUS_DARK);
+  DIVERGING.length = 0;
+  DIVERGING.push(...(name === "light" ? DIVERGING_LIGHT : DIVERGING_DARK));
+}
 
 /** Single-hue sequential ramp, light -> dark, for continuous magnitude. */
 export const SEQUENTIAL = [
@@ -58,18 +82,6 @@ export const SEQUENTIAL = [
   "#256abf",
   "#184f95",
   "#0d366b",
-] as const;
-
-/** Diverging ramp for signed quantities (residuals, gradients): blue <-> red
- *  around a neutral grey midpoint. Never a hue at the midpoint. */
-export const DIVERGING = [
-  "#256abf",
-  "#3987e5",
-  "#86b6ef",
-  "#383835",
-  "#e89a9a",
-  "#d03b3b",
-  "#9d2020",
 ] as const;
 
 /** Sample a ramp at t in [0,1] with linear interpolation between steps. */

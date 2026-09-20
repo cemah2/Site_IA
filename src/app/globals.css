@@ -3,10 +3,16 @@
 /* ===========================================================================
    ML LAB — design tokens
    ---------------------------------------------------------------------------
-   Dark-only by deliberate choice: the series palette below was stepped and
-   validated against THESE two dark surfaces. A light mode would need its own
-   selected steps, not an automatic flip, so it is not shipped rather than
-   shipped wrong.
+   Two themes. The series palette below was stepped and validated against the
+   dark surfaces first, then re-validated against a WHITE plot surface — it
+   passes every check on both, which is the only reason a light mode was
+   affordable without a second set of hues. On the slightly grey panel colour
+   the series green measures 2.82:1, just under the 3:1 floor, so in light mode
+   the plot surface is pure white rather than the panel tint.
+
+   Only the chrome (surfaces, ink, lines, status text) is swapped. Status
+   colours get darker light-mode variants because the dark-mode amber measures
+   1.8:1 on white, which is unreadable rather than merely low.
 
    Series palette validation (OKLab dE x100, all-pairs — the pairlist that
    applies to scatter plots — against both --plane and --surface-1):
@@ -67,10 +73,34 @@
   --radius-panel: 0.875rem;
 }
 
-/* Keep the OS from painting form controls / scrollbars light. */
+/* Keep the OS from painting form controls / scrollbars against the theme. */
 :root {
   color-scheme: dark;
   --plot-bg: var(--color-surface-1);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-plane: #f6f8fb;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #eef2f7;
+  --color-surface-3: #e2e9f1;
+  --color-line: #dbe3ec;
+  --color-line-strong: #aebbcb;
+  --color-ink: #10151d;
+  --color-ink-2: #47536a;
+  --color-ink-muted: #5b6779;
+  --color-grid: #eef2f7;
+  --color-axis: #b9c4d2;
+
+  --color-accent: #1d4ed8;
+  --color-accent-dim: #93b4f5;
+
+  --color-good: #0a7d0a;
+  --color-warning: #9a6a00;
+  --color-serious: #b8532a;
+  --color-critical: #b32020;
 }
 
 html,

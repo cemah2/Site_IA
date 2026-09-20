@@ -8,6 +8,7 @@ import { findNav, neighbours } from "@/lib/nav";
 import { Sidebar } from "./Sidebar";
 import { CourseVisitTracker } from "@/components/lab/CourseProgress";
 import { PermalinkLoader } from "@/components/lab/ShareLink";
+import { useTheme } from "./ThemeToggle";
 
 /**
  * The frame every page sits in: a persistent left rail on desktop, a drawer on
@@ -16,6 +17,7 @@ import { PermalinkLoader } from "@/components/lab/ShareLink";
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
+  const theme = useTheme();
   const pathname = usePathname();
   const current = pathname.endsWith("/") ? pathname : `${pathname}/`;
   const found = findNav(current);
@@ -30,7 +32,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-dvh">
+    // Keyed on the theme: the drawing colours are plain JavaScript values, so
+    // anything that memoised one — every chart, every canvas — has to be rebuilt
+    // when they change. Remounting on an explicit click is cheap and exact.
+    <div className="flex min-h-dvh" key={theme}>
       <CourseVisitTracker />
       <PermalinkLoader />
       {/* Desktop rail */}

@@ -7,6 +7,7 @@ import { cx } from "@/components/ui";
 import { NAV } from "@/lib/nav";
 import { CourseProgressBar } from "@/components/lab/CourseProgress";
 import { subscribeQuizLog, summarise } from "@/lib/progress/quiz-log";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -14,21 +15,20 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <nav aria-label="Sections" className="flex h-full flex-col">
-      <Link
-        href="/"
-        onClick={onNavigate}
-        className="flex items-center gap-2.5 border-b border-line px-5 py-4"
-      >
-        <LabMark />
-        <span className="leading-tight">
-          <span className="block text-[13px] font-semibold tracking-tight text-ink">
-            Machine Learning Lab
+      <div className="flex items-center gap-2 border-b border-line px-5 py-4">
+        <Link href="/" onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-2.5">
+          <LabMark />
+          <span className="leading-tight">
+            <span className="block text-[13px] font-semibold tracking-tight text-ink">
+              Machine Learning Lab
+            </span>
+            <span className="block text-[10px] uppercase tracking-[0.14em] text-ink-muted">
+              Comprendre en manipulant
+            </span>
           </span>
-          <span className="block text-[10px] uppercase tracking-[0.14em] text-ink-muted">
-            Comprendre en manipulant
-          </span>
-        </span>
-      </Link>
+        </Link>
+        <ThemeToggle className="shrink-0 rounded-md border border-line bg-surface-2 px-2 py-1 text-[13px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink" />
+      </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-4">
         <CourseProgressBar className="mb-4" />
