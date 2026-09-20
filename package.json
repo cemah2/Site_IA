@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "verify:challenges": "tsx scripts/verify-challenges.ts"
+    "verify:challenges": "tsx scripts/verify-challenges.ts",
+    "og": "tsx scripts/make-og.tsx"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

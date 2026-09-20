@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - id: pages
+        uses: actions/configure-pages@v5
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -29,6 +31,9 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_BASE_PATH: /Site_IA
+          # Absolute URLs for the social card. Without it, Next falls back to
+          # localhost and every shared link advertises an unfetchable image.
+          NEXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url || 'https://cemah2.github.io/Site_IA/' }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out
