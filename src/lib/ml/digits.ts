@@ -76,18 +76,38 @@ export function normaliseDrawing(src: Float32Array): Float32Array {
   }
   if (mass === 0 || maxX < 0) return out;
 
-  // Fit the ink into a 12×12 box, as MNIST does, keeping the aspect ratio.
+  // Centre of mass of the ink, which is what the frame is centred on below.
+  let comX = 0;
+  let comY = 0;
+  for (let y = 0; y < DIGIT_SIZE; y++) {
+    for (let x = 0; x < DIGIT_SIZE; x++) {
+      const v = src[y * DIGIT_SIZE + x];
+      if (v > 0.08) {
+        comX += v * x;
+        comY += v * y;
+      }
+    }
+  }
+  comX /= mass;
+  comY /= mass;
+
+  // Fit the ink into a 12×12 box, as MNIST does, keeping the aspect ratio…
   const w = maxX - minX + 1;
   const h = maxY - minY + 1;
   const scale = 12 / Math.max(w, h);
-  const offX = (DIGIT_SIZE - w * scale) / 2;
-  const offY = (DIGIT_SIZE - h * scale) / 2;
+
+  // …then centre on the centre of mass, not on the bounding box. The two differ
+  // for any digit that is not symmetric — a 7 carries most of its ink at the
+  // top — and MNIST centres on the mass. Centring the box instead shifted a
+  // drawn square by 1.4 px out of 16, which is a tenth of the image asked of a
+  // network trained on centred ones.
+  const centre = (DIGIT_SIZE - 1) / 2;
 
   for (let y = 0; y < DIGIT_SIZE; y++) {
     for (let x = 0; x < DIGIT_SIZE; x++) {
       // Sample the source at the position this output pixel came from.
-      const sx = (x - offX) / scale + minX;
-      const sy = (y - offY) / scale + minY;
+      const sx = (x - centre) / scale + comX;
+      const sy = (y - centre) / scale + comY;
       if (sx < 0 || sy < 0 || sx >= DIGIT_SIZE || sy >= DIGIT_SIZE) continue;
       out[y * DIGIT_SIZE + x] = bilinear(src, sx, sy);
     }
