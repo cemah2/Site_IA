@@ -7,7 +7,7 @@ import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
-import { DataPlot } from "@/components/viz/DataPlot";
+import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
 import { LineChart } from "@/components/viz/LineChart";
 import { NetworkDiagram, WeightLegend } from "@/components/viz/NetworkDiagram";
@@ -35,7 +35,7 @@ const SPEEDS = [
 ];
 
 export function TrainingLab() {
-  const { dataset, trainRatio, setTrainRatio } = useLab();
+  const { dataset, setDataset, trainRatio, setTrainRatio } = useLab();
   const {
     net,
     version,
@@ -123,6 +123,8 @@ export function TrainingLab() {
               >
                 <DataPlot
                   dataset={dataset}
+                  onChange={setDataset}
+                  mode="edit"
                   field={field}
                   aspect={1}
                   maxWidth={400}
@@ -130,6 +132,12 @@ export function TrainingLab() {
                     evalTest && evalTest.wrongIds.includes(s.id) ? { wrong: true } : undefined
                   }
                 />
+                <EditHints />
+                <p className="mt-1.5 text-[11px] leading-snug text-ink-2">
+                  Déplacez un point <em>pendant</em> l&apos;entraînement : le réseau ne
+                  recommence pas, il s&apos;adapte. C&apos;est exactement ce qui se passe quand
+                  on ajoute des données à un modèle déjà entraîné.
+                </p>
               </Panel>
 
               <Panel

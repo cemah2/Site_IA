@@ -7,7 +7,7 @@ import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
-import { DataPlot } from "@/components/viz/DataPlot";
+import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { LineChart } from "@/components/viz/LineChart";
 import { Plot } from "@/components/viz/Plot";
 import { DatasetControls } from "@/components/lab/DatasetControls";
@@ -512,7 +512,7 @@ function RegressionView() {
 /** The same phenomenon in classification: complexity becomes a KNN K or a tree
  *  depth, and the "too complex" boundary is visibly chasing individual points. */
 function ClassificationView() {
-  const { dataset, trainRatio } = useLab();
+  const { dataset, setDataset, trainRatio } = useLab();
   const [complexity, setComplexity] = React.useState(6);
   const [family, setFamily] = React.useState<"knn" | "tree">("knn");
 
@@ -565,11 +565,19 @@ function ClassificationView() {
           >
             <DataPlot
               dataset={dataset}
+              onChange={setDataset}
+              mode="edit"
               field={field}
               aspect={1}
               maxWidth={480}
               styleFor={(s) => (testIds.has(s.id) ? undefined : { dim: true })}
             />
+            <EditHints />
+            <p className="mt-1.5 text-[11px] leading-snug text-ink-2">
+              Ajoutez trois ou quatre points du mauvais côté de la frontière : le modèle
+              complexe ira les chercher un par un, le modèle simple les ignorera. C&apos;est la
+              différence entre mémoriser et généraliser, en dix secondes.
+            </p>
           </Panel>
 
           <Panel title="Accuracy en fonction de la complexité">

@@ -7,7 +7,7 @@ import { Tex } from "@/components/math/Math";
 import { G } from "@/components/ui/Glossary";
 import { Quiz } from "@/components/lab/Quiz";
 import { ConfusionMatrix } from "@/components/viz/ConfusionMatrix";
-import { DataPlot } from "@/components/viz/DataPlot";
+import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
 import { MiniField } from "@/components/viz/MiniField";
 import { DatasetControls } from "@/components/lab/DatasetControls";
@@ -29,7 +29,7 @@ interface Row {
 }
 
 export function CompareLab() {
-  const { dataset, trainRatio, setTrainRatio } = useLab();
+  const { dataset, setDataset, trainRatio, setTrainRatio } = useLab();
   const [focus, setFocus] = React.useState<AlgoId>("knn");
   const [cell, setCell] = React.useState<{ trueClass: number; predicted: number } | null>(null);
   const [onTest, setOnTest] = React.useState(true);
@@ -156,8 +156,11 @@ export function CompareLab() {
                 }
               >
                 <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto]">
+                  <div>
                   <DataPlot
                     dataset={dataset}
+                    onChange={setDataset}
+                    mode="edit"
                     field={focusedField}
                     aspect={1}
                     maxWidth={420}
@@ -172,6 +175,14 @@ export function CompareLab() {
                       return undefined;
                     }}
                   />
+                    <EditHints />
+                    <p className="mt-1.5 text-[11px] leading-snug text-ink-2">
+                      Déplacez un point et regardez les six vignettes du haut réagir
+                      simultanément : certaines frontières se tordent pour le rattraper,
+                      d&apos;autres ne bougent pas du tout. C&apos;est la comparaison la plus
+                      parlante de la page.
+                    </p>
+                  </div>
                   <div className="space-y-4">
                     <ConfusionMatrix
                       matrix={focused.evaluation.matrix}
