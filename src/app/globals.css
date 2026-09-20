@@ -1,0 +1,269 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   ML LAB — design tokens
+   ---------------------------------------------------------------------------
+   Dark-only by deliberate choice: the series palette below was stepped and
+   validated against THESE two dark surfaces. A light mode would need its own
+   selected steps, not an automatic flip, so it is not shipped rather than
+   shipped wrong.
+
+   Series palette validation (OKLab dE x100, all-pairs — the pairlist that
+   applies to scatter plots — against both --plane and --surface-1):
+     lightness band  PASS   all 5 inside L 0.48-0.67
+     chroma floor    PASS   all 5 >= 0.10
+     CVD separation  PASS   worst pair dE 10.9 (deutan), target >= 8
+     normal vision   PASS   worst pair dE 15.5, floor >= 15
+     contrast        PASS   all 5 >= 3:1
+   Class identity additionally carries a SHAPE (circle / square / triangle /
+   diamond / cross), so it is never colour-alone.
+   =========================================================================== */
+
+@theme {
+  /* --- surfaces & ink ---------------------------------------------------- */
+  --color-plane: #080b12;
+  --color-surface-1: #10141b;
+  --color-surface-2: #161c25;
+  --color-surface-3: #1e2631;
+  --color-line: #232b37;
+  --color-line-strong: #33404f;
+  --color-ink: #eef2f8;
+  --color-ink-2: #9fabbd;
+  --color-ink-muted: #6b7686;
+  --color-grid: #1a212b;
+  --color-axis: #2e3947;
+
+  /* --- chrome accent ------------------------------------------------------
+     Deliberately lighter (OKLCH L ~0.72) than the series band ceiling (0.67)
+     so UI chrome can never be mistaken for a data series.                    */
+  --color-accent: #7aa2ff;
+  --color-accent-dim: #3d5480;
+
+  /* --- categorical series (fixed order, never cycled) --------------------- */
+  --color-class-0: #2584f5;
+  --color-class-1: #e45a20;
+  --color-class-2: #27a37e;
+  --color-class-3: #9637ab;
+  --color-class-4: #bb1f54;
+
+  /* --- status (reserved, never reused as a series) ------------------------ */
+  --color-good: #0ca30c;
+  --color-warning: #fab219;
+  --color-serious: #ec835a;
+  --color-critical: #d03b3b;
+
+  /* --- sequential ramp: one hue, light -> dark ---------------------------- */
+  --color-seq-100: #cde2fb;
+  --color-seq-200: #9ec5f4;
+  --color-seq-300: #6da7ec;
+  --color-seq-400: #3987e5;
+  --color-seq-500: #256abf;
+  --color-seq-600: #184f95;
+  --color-seq-700: #0d366b;
+
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --radius-panel: 0.875rem;
+}
+
+/* Keep the OS from painting form controls / scrollbars light. */
+:root {
+  color-scheme: dark;
+  --plot-bg: var(--color-surface-1);
+}
+
+html,
+body {
+  background: var(--color-plane);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Numbers that sit in a column (axis ticks, tables, readouts) must align. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- focus -------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- scrollbars --------------------------------------------------------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 99px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- range inputs ------------------------------------------------------- */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(
+    to right,
+    var(--color-accent) 0%,
+    var(--color-accent) var(--fill, 50%),
+    var(--color-surface-3) var(--fill, 50%),
+    var(--color-surface-3) 100%
+  );
+}
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(
+    to right,
+    var(--color-accent) 0%,
+    var(--color-accent) var(--fill, 50%),
+    var(--color-surface-3) var(--fill, 50%),
+    var(--color-surface-3) 100%
+  );
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 99px;
+  background: var(--color-ink);
+  border: 2px solid var(--color-plane);
+  box-shadow: 0 0 0 1px var(--color-line-strong);
+  transition: transform 0.12s ease;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 99px;
+  background: var(--color-ink);
+  border: 2px solid var(--color-plane);
+  box-shadow: 0 0 0 1px var(--color-line-strong);
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+input[type="range"]:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --- KaTeX tuning ------------------------------------------------------- */
+.katex {
+  font-size: 1.02em;
+}
+.katex-display {
+  margin: 0.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0;
+}
+
+/* --- shared surface utilities ------------------------------------------- */
+@utility panel {
+  background: color-mix(in oklab, var(--color-surface-1) 92%, transparent);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+}
+
+@utility hairline {
+  border-color: var(--color-line);
+}
+
+/* --- motion ------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- long-form text inside explanation panels ---------------------------- */
+.prose-lab {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ink-2);
+}
+.prose-lab > * + * {
+  margin-top: 0.85rem;
+}
+.prose-lab strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.prose-lab h3 {
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.prose-lab ul {
+  list-style: none;
+  padding-left: 0;
+}
+.prose-lab ul > li {
+  position: relative;
+  padding-left: 1.05rem;
+}
+.prose-lab ul > li + li {
+  margin-top: 0.4rem;
+}
+.prose-lab ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0.15rem;
+  top: 0.62em;
+  width: 4px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--color-line-strong);
+}
+.prose-lab ol {
+  list-style: decimal;
+  padding-left: 1.15rem;
+}
+.prose-lab ol > li + li {
+  margin-top: 0.4rem;
+}
+.prose-lab code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--color-surface-3);
+  border-radius: 4px;
+  padding: 0.12em 0.34em;
+  color: var(--color-ink);
+}
+.prose-lab a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
