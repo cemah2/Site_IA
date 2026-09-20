@@ -250,6 +250,13 @@ export const COURSE: CourseChapter[] = [
         minutes: 15,
       },
       {
+        href: "/en-vrai/",
+        title: "Et maintenant, en vrai",
+        outcome:
+          "Vous saurez refaire en scikit-learn ce que vous avez manipulé ici, avec un Pipeline et une validation croisée.",
+        minutes: 10,
+      },
+      {
         href: "/defis/",
         title: "Défis",
         outcome: "Quatre problèmes qui ne se résolvent pas en poussant les curseurs au maximum.",

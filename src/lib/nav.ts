@@ -79,6 +79,7 @@ export const NAV: NavSection[] = [
       { href: "/comparaison/", label: "Comparer les algorithmes", blurb: "Un dataset, six modèles, côte à côte" },
       { href: "/playground/", label: "Playground", blurb: "Votre dataset, votre modèle, vos paramètres" },
       { href: "/defis/", label: "Défis", blurb: "Des problèmes à résoudre vous-même" },
+      { href: "/en-vrai/", label: "Et maintenant, en vrai", blurb: "Le même travail, en scikit-learn" },
     ],
   },
 ];
