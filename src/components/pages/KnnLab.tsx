@@ -8,7 +8,8 @@ import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
 import { DatasetControls } from "@/components/lab/DatasetControls";
-import { computeField } from "@/lib/ml/field";
+import { Narrator } from "@/components/lab/Narrator";
+import { boundarySegments, computeField } from "@/lib/ml/field";
 import { evaluate } from "@/lib/ml/metrics";
 import { Knn, type Metric } from "@/lib/ml/models/knn";
 import { splitDataset } from "@/lib/ml/datasets";
@@ -39,6 +40,24 @@ export function KnnLab() {
   );
 
   const detail = model.detail(query);
+
+  // How convoluted the boundary is, as a count of its segments. This is the
+  // quantity the page is actually about — K controls smoothness — and unlike
+  // accuracy it moves on every change of K, so the narrator always has
+  // something true to report.
+  const boundaryComplexity = React.useMemo(
+    () => (field ? boundarySegments(field).length : 0),
+    [field],
+  );
+
+  // Measured on held-out points, never on the training set. Narrating training
+  // accuracy would say "smaller K is always better" — which is the exact trap
+  // this page warns about, stated by the page itself.
+  const liveEval = React.useMemo(() => {
+    const { train, test } = splitDataset(dataset, trainRatio, 1234);
+    if (!test.length) return null;
+    return evaluate(new Knn(train, nClasses, k, metric, weighted), test, dataset.classNames);
+  }, [dataset, trainRatio, nClasses, k, metric, weighted]);
   const neighbourIds = React.useMemo(
     () => new Set(detail.neighbours.map((n) => n.sample.id)),
     [detail],
@@ -168,6 +187,44 @@ export function KnnLab() {
               }}
             />
             <EditHints />
+            <Narrator
+              className="mt-3"
+              placeholder="Bougez le curseur K : l'effet sur la frontière et sur les erreurs sera décrit ici."
+              causes={[
+                { key: "k", label: "K", value: k },
+                { key: "metric", label: "la distance", value: metric === "euclidean" ? "euclidienne" : "Manhattan", feminine: true },
+                { key: "weighted", label: "la pondération", value: weighted ? "activée" : "désactivée", feminine: true },
+              ]}
+              effects={
+                liveEval
+                  ? [
+                      {
+                        key: "acc",
+                        label: "l'accuracy sur les points jamais vus",
+                        value: liveEval.accuracy,
+                        format: (v) => formatPercent(v, 1),
+                        better: "up",
+                        epsilon: 0.0001,
+                      },
+                      {
+                        key: "errors",
+                        label: "le nombre d'erreurs",
+                        value: liveEval.wrongIds.length,
+                        format: (v) => String(Math.round(v)),
+                        better: "down",
+                        epsilon: 0.5,
+                      },
+                      {
+                        key: "complexity",
+                        label: "la complexité de la frontière",
+                        value: boundaryComplexity,
+                        format: (v) => `${Math.round(v)} segments`,
+                        epsilon: 2,
+                      },
+                    ]
+                  : []
+              }
+            />
           </Panel>
         }
         controls={
