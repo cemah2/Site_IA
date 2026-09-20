@@ -46,6 +46,7 @@ export const NAV: NavSection[] = [
       { href: "/regression/lineaire/", label: "Régression linéaire", blurb: "Résidus, coût, moindres carrés" },
       { href: "/regression/descente-de-gradient/", label: "Descente de gradient", blurb: "La bille sur la surface de coût" },
       { href: "/regression/logistique/", label: "Régression logistique", blurb: "Un score, une sigmoïde, une probabilité" },
+      { href: "/regression/boosting/", label: "Boosting", blurb: "Des arbres qui corrigent les erreurs des précédents" },
     ],
   },
   {

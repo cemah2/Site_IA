@@ -166,15 +166,18 @@ export function LineChart({
             />
           </g>
 
+          {/* Recessive on purpose: in the accent colour this rule reads as a
+              data spike, because the accent sits next to the first series hue.
+              Chrome must never be mistakeable for data. */}
           {marker != null && (
             <line
               x1={sx(marker)}
               x2={sx(marker)}
               y1={pad.t}
               y2={height - pad.b}
-              stroke={CHROME.accent}
-              strokeWidth={1.25}
-              opacity={0.75}
+              stroke={CHROME.lineStrong}
+              strokeWidth={1}
+              strokeDasharray="3 3"
             />
           )}
 

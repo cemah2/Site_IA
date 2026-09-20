@@ -166,6 +166,13 @@ export const COURSE: CourseChapter[] = [
         minutes: 12,
       },
       {
+        href: "/regression/boosting/",
+        title: "Boosting",
+        outcome:
+          "Vous saurez en quoi le boosting est l'opposé d'une forêt aléatoire, et pourquoi trop d'arbres y nuit.",
+        minutes: 12,
+      },
+      {
         href: "/regression/logistique/",
         title: "Régression logistique",
         outcome:
