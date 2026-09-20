@@ -137,6 +137,13 @@ export const COURSE: CourseChapter[] = [
         outcome: "Vous saurez régler un learning rate et reconnaître une divergence.",
         minutes: 12,
       },
+      {
+        href: "/regression/logistique/",
+        title: "Régression logistique",
+        outcome:
+          "Vous saurez transformer un score en probabilité, et vous aurez déjà construit un neurone sans le savoir.",
+        minutes: 12,
+      },
     ],
   },
   {
