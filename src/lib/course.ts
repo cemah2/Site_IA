@@ -94,6 +94,13 @@ export const COURSE: CourseChapter[] = [
           "Vous saurez à quel point une accuracy de test dépend du hasard, et comment annoncer un chiffre défendable.",
         minutes: 12,
       },
+      {
+        href: "/concepts/seuil/",
+        title: "Le seuil de décision",
+        outcome:
+          "Vous saurez lire une courbe ROC, choisir un seuil en fonction de ce que coûtent vos erreurs, et repérer quand l'accuracy ment.",
+        minutes: 14,
+      },
     ],
   },
   {

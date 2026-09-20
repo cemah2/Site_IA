@@ -64,6 +64,7 @@ export const NAV: NavSection[] = [
       { href: "/concepts/biais-variance/", label: "Biais et variance", blurb: "Les deux façons de se tromper" },
       { href: "/concepts/regularisation/", label: "Régularisation", blurb: "Payer la complexité pour l'éviter" },
       { href: "/concepts/validation-croisee/", label: "Validation croisée", blurb: "Le chiffre auquel on peut se fier" },
+      { href: "/concepts/seuil/", label: "Le seuil de décision", blurb: "Précision, rappel, ROC — et ce que coûtent vos erreurs" },
       { href: "/concepts/clustering/", label: "Clustering", blurb: "Apprendre sans étiquettes : K-means" },
     ],
   },
