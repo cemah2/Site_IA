@@ -11,7 +11,7 @@ import { Plot } from "@/components/viz/Plot";
 import { WeightLegend } from "@/components/viz/NetworkDiagram";
 import { ACTIVATIONS, type ActivationName } from "@/lib/ml/models/activations";
 import { formatNumber } from "@/lib/viz/geometry";
-import { CHROME, DIVERGING, rampAt, SEQUENTIAL, SERIES, withAlpha } from "@/lib/viz/palette";
+import { CHROME, DIVERGING, SEQUENTIAL, SERIES, rampAt, toRgbTriple, withAlpha } from "@/lib/viz/palette";
 
 export function NeuronLab() {
   const [w1, setW1] = React.useState(1.2);
@@ -601,7 +601,7 @@ function NeuronField({
       for (let i = 0; i < res; i++) {
         const v = values[j * res + i] / maxAbs;
         const dst = ((res - 1 - j) * res + i) * 4;
-        const rgb = parseRgb(rampAt(DIVERGING, (Math.max(-1, Math.min(1, v)) + 1) / 2));
+        const rgb = toRgbTriple(rampAt(DIVERGING, (Math.max(-1, Math.min(1, v)) + 1) / 2));
         img.data[dst] = rgb[0];
         img.data[dst + 1] = rgb[1];
         img.data[dst + 2] = rgb[2];
@@ -626,15 +626,4 @@ function NeuronField({
   );
 }
 
-function parseRgb(value: string): [number, number, number] {
-  if (value.startsWith("#")) {
-    const h = value.slice(1);
-    return [
-      parseInt(h.slice(0, 2), 16),
-      parseInt(h.slice(2, 4), 16),
-      parseInt(h.slice(4, 6), 16),
-    ];
-  }
-  const m = value.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-  return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [128, 128, 128];
-}
+

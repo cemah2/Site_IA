@@ -3,7 +3,7 @@
 import * as React from "react";
 import { cx } from "@/lib/cx";
 import { DIGIT_PIXELS, DIGIT_SIZE } from "@/lib/ml/digits";
-import { CHROME, DIVERGING, rampAt, SEQUENTIAL, STATUS } from "@/lib/viz/palette";
+import { CHROME, DIVERGING, rampAt, SEQUENTIAL, STATUS, toRgbTriple } from "@/lib/viz/palette";
 
 /**
  * The three things a classifier's answer is made of, drawn separately.
@@ -197,8 +197,7 @@ export function ReceptiveFields({
       // blank and say nothing about what they look for.
       for (let p = 0; p < DIGIT_PIXELS; p++) {
         const t = w1[base + p] / maxAbs;
-        const colour = rampAt(DIVERGING, (t + 1) / 2);
-        const [r, g, b] = colour.match(/\d+/g)!.map(Number);
+        const [r, g, b] = toRgbTriple(rampAt(DIVERGING, (t + 1) / 2));
         img.data[p * 4] = r;
         img.data[p * 4 + 1] = g;
         img.data[p * 4 + 2] = b;

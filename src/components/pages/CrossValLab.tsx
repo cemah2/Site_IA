@@ -241,6 +241,7 @@ export function CrossValLab() {
 
               <Panel
                 title={`${k} plis, ${k} entraînements`}
+              exportName="validation-croisee-plis"
                 subtitle="Chaque point sert exactement une fois de test, et K − 1 fois d'entraînement"
                 bodyClassName="p-4"
               >

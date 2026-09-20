@@ -81,6 +81,7 @@ export function NearestCentroidLab() {
         plot={
           <Panel
             title="Le plan de décision"
+              exportName="nearest-centroid-frontiere"
             subtitle={
               stage >= 2
                 ? "Cliquez dans le graphique pour déplacer le point de test."

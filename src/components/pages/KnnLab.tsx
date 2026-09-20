@@ -109,6 +109,7 @@ export function KnnLab() {
         plot={
           <Panel
             title="Prédire un point"
+              exportName="knn-voisins"
             subtitle="Cliquez n'importe où dans le graphique pour déplacer le point à classer."
             bodyClassName="p-3"
             action={<ClassLegend classNames={dataset.classNames} counts={counts} />}

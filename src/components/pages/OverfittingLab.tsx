@@ -560,6 +560,7 @@ function ClassificationView() {
         <div className="space-y-5">
           <Panel
             title="La frontière"
+              exportName="surapprentissage-frontiere"
             subtitle="Les points estompés ont servi à entraîner. Les autres sont le jeu de validation."
             bodyClassName="p-3"
           >

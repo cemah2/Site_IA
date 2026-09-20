@@ -165,7 +165,8 @@ export function TrainingLab() {
               </Panel>
             </div>
 
-            <Panel title="Les courbes d'apprentissage" subtitle="Une échelle par grandeur — jamais deux axes dans un même cadre.">
+            <Panel title="Les courbes d'apprentissage"
+              exportName="entrainement-courbes" subtitle="Une échelle par grandeur — jamais deux axes dans un même cadre.">
               {history.length > 1 ? (
                 <div className="grid gap-5 md:grid-cols-2">
                   <div>

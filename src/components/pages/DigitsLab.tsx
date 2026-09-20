@@ -311,6 +311,7 @@ export function DigitsLab() {
                   ? `Les ${state.hiddenCount} neurones cachés : à gauche ce qu'ils cherchent, à droite ce qu'ils voient dans votre dessin`
                   : "Sans couche cachée, chaque chiffre n'a qu'une image de poids — et c'est tout le modèle"
               }
+              exportName={deep ? "reseau-poids-caches" : "reseau-gabarits"}
               bodyClassName="p-4"
             >
               <div

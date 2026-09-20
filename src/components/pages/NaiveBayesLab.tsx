@@ -85,6 +85,7 @@ export function NaiveBayesLab() {
         plot={
           <Panel
             title="Le modèle de chaque classe"
+              exportName="naive-bayes-gaussiennes"
             subtitle="Cliquez pour déplacer le point à classer. Les ellipses sont les gaussiennes ajustées."
             bodyClassName="p-3"
             action={

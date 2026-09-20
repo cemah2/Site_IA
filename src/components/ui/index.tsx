@@ -15,6 +15,7 @@ export function Panel({
   children,
   className,
   bodyClassName,
+  exportName,
 }: {
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
@@ -22,7 +23,14 @@ export function Panel({
   children: React.ReactNode;
   className?: string;
   bodyClassName?: string;
+  /**
+   * Enables a PNG export of this panel's drawing, using this as the file name.
+   * Set it on panels whose content is a figure someone might want to keep.
+   */
+  exportName?: string;
 }) {
+  const bodyRef = React.useRef<HTMLDivElement>(null);
+
   return (
     <section
       className={cx(
@@ -32,17 +40,78 @@ export function Panel({
     >
       {/* Header stacks on phones: side by side, a long title and a legend each
           get a sliver of the width and both become unreadable. */}
-      {(title || action) && (
+      {(title || action || exportName) && (
         <header className="flex flex-col gap-2 border-b border-line px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <div className="min-w-0">
             {title && <h2 className="text-sm font-semibold text-ink">{title}</h2>}
             {subtitle && <p className="mt-0.5 text-xs text-ink-muted">{subtitle}</p>}
           </div>
-          {action && <div className="sm:shrink-0">{action}</div>}
+          <div className="flex items-start gap-2 sm:shrink-0">
+            {action}
+            {exportName && <ExportPngButton name={exportName} target={bodyRef} />}
+          </div>
         </header>
       )}
-      <div className={cx("p-4", bodyClassName)}>{children}</div>
+      <div ref={bodyRef} className={cx("p-4", bodyClassName)}>
+        {children}
+      </div>
     </section>
+  );
+}
+
+/**
+ * Save the first drawing inside `target` as a PNG.
+ *
+ * It looks for an `<svg>` first and falls back to a `<canvas>`, which covers
+ * every visualisation on the site — the plots are SVG with the decision surface
+ * embedded as an image, and the weight-image grids are canvas.
+ */
+function ExportPngButton({
+  name,
+  target,
+}: {
+  name: string;
+  target: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [state, setState] = React.useState<"idle" | "done" | "error">("idle");
+
+  React.useEffect(() => {
+    if (state === "idle") return;
+    const id = setTimeout(() => setState("idle"), 2000);
+    return () => clearTimeout(id);
+  }, [state]);
+
+  const onClick = async () => {
+    const host = target.current;
+    if (!host) return;
+    try {
+      const { exportCanvasToPng, exportSvgToPng } = await import("@/lib/viz/export-png");
+      const svg = host.querySelector("svg");
+      if (svg) {
+        await exportSvgToPng(svg as SVGSVGElement, { name });
+      } else {
+        const canvas = host.querySelector("canvas");
+        if (!canvas) {
+          setState("error");
+          return;
+        }
+        await exportCanvasToPng(canvas as HTMLCanvasElement, { name });
+      }
+      setState("done");
+    } catch {
+      setState("error");
+    }
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      title="Enregistrer cette figure en PNG"
+      aria-label="Enregistrer cette figure en PNG"
+      className="shrink-0 rounded-md border border-line bg-surface-2 px-2 py-1 text-[11px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
+    >
+      {state === "done" ? "✓ PNG" : state === "error" ? "échec" : "PNG"}
+    </button>
   );
 }
 

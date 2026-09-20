@@ -115,6 +115,7 @@ export function DecisionTreeLab() {
 
             <Panel
               title="Le découpage du plan"
+              exportName="arbre-decoupage"
               subtitle="Chaque question de l'arbre est un trait perpendiculaire à un axe."
               bodyClassName="p-3"
             >

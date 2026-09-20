@@ -107,6 +107,7 @@ export function CompareLab() {
           <div className="space-y-5">
             <Panel
               title={`${ALGO_ORDER.length} façons de découper le même plan`}
+              exportName="comparaison-modeles"
               subtitle="Chaque vignette est un modèle entraîné sur les mêmes points. Cliquez pour l'examiner."
               bodyClassName="p-3"
               action={<ClassLegend classNames={dataset.classNames} />}

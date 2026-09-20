@@ -151,6 +151,7 @@ export function RandomForestLab() {
 
             <Panel
               title="Le vote, et le résultat"
+              exportName="random-forest-vote"
               subtitle="À gauche, l'arbre seul. À droite, la forêt. Cliquez dans un graphique pour déplacer le point à classer."
               bodyClassName="p-3"
             >

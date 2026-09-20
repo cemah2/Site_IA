@@ -210,6 +210,7 @@ export function LogisticLab() {
             <div className="grid gap-5 xl:grid-cols-2">
               <Panel
                 title="La frontière"
+              exportName="logistique-frontiere"
                 subtitle="Trait plein : probabilité 50 %. Traits pointillés : 25 % et 75 %."
                 bodyClassName="p-3"
                 action={<ClassLegend classNames={dataset.classNames} />}

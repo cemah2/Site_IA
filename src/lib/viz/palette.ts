@@ -80,6 +80,22 @@ export function rampAt(ramp: readonly string[], t: number): string {
   return mix(ramp[i], ramp[i + 1], u - i);
 }
 
+/**
+ * A colour as three channel values, whatever notation it arrived in.
+ *
+ * `rampAt` returns a hex string when the sample lands exactly on a ramp stop
+ * and an `rgb(...)` string when it interpolates between two. Anything reading
+ * channels back out of a ramp has to accept both — parsing digits out of
+ * `#256abf` with a number regex yields 256, then NaN, then NaN, which is how
+ * stray green pixels appeared in the neural-network weight images.
+ */
+export function toRgbTriple(colour: string): [number, number, number] {
+  if (colour.startsWith("#")) return hexToRgb(colour);
+  const parts = colour.match(/-?\d+(\.\d+)?/g);
+  if (!parts || parts.length < 3) return [0, 0, 0];
+  return [Number(parts[0]), Number(parts[1]), Number(parts[2])];
+}
+
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace("#", "");
   return [

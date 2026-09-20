@@ -111,6 +111,7 @@ export function SvmLab() {
           <div className="space-y-5">
             <Panel
               title="La marge et ses gardiens"
+              exportName="svm-marge"
               subtitle="Les points cerclés sont les vecteurs de support. Supprimez-en un autre : rien ne bouge."
               bodyClassName="p-3"
               action={<ClassLegend classNames={dataset.classNames} counts={counts} />}
