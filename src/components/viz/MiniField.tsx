@@ -41,7 +41,7 @@ export function MiniField({
 
   React.useEffect(() => {
     const canvas = ref.current;
-    if (!canvas || !model) return;
+    if (!canvas) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = size * dpr;
     canvas.height = size * dpr;
@@ -49,6 +49,11 @@ export function MiniField({
     if (!ctx) return;
     ctx.scale(dpr, dpr);
 
+    ctx.clearRect(0, 0, size, size);
+
+    // With no model there is nothing to shade — the thumbnail is then just the
+    // data, which is exactly what a dataset gallery wants to show.
+    if (model) {
     // Paint the field at its own resolution first, then scale the whole thing
     // up in one drawImage. Filling `res²` slightly-overlapping rects directly
     // onto the display canvas lands cell edges on fractional pixels and
@@ -74,6 +79,7 @@ export function MiniField({
     }
     sctx.putImageData(img, 0, 0);
     ctx.drawImage(src, 0, 0, size, size);
+    }
 
     const [[xMin, xMax], [yMin, yMax]] = dataset.domain;
     const toPx = (x: number, y: number): [number, number] => [
@@ -85,7 +91,7 @@ export function MiniField({
       for (const s of dataset.samples) {
         const [px, py] = toPx(s.x[0], s.x[1]);
         ctx.beginPath();
-        ctx.arc(px, py, 1.6, 0, Math.PI * 2);
+        ctx.arc(px, py, model ? 1.6 : 2.1, 0, Math.PI * 2);
         ctx.fillStyle = classColor(s.y);
         ctx.fill();
         ctx.lineWidth = 0.7;

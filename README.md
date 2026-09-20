@@ -21,6 +21,22 @@ npm run build    # export statique dans ./out
 npm run lint
 ```
 
+## Les pages
+
+| Section | Pages |
+|---|---|
+| Données | Features · Datasets · Espace 2D/3D |
+| Classification | Nearest Centroid · KNN · Naive Bayes · Arbre de décision · Random Forest · SVM |
+| Régression | Régression linéaire · Descente de gradient |
+| Réseaux de neurones | Un neurone · Activations · Forward · Backpropagation · Entraînement |
+| Concepts | Sur/sous-apprentissage · Biais et variance · Régularisation · Clustering |
+| Laboratoire | Comparaison · Playground · Défis |
+
+Chaque page algorithme suit le même rythme : visualisation → manipulation →
+explication à trois niveaux (intuition / technique / mathématiques) → cas
+pratique. Le dataset manipulé sur une page suit sur toutes les autres, et le
+réseau de neurones entraîné sur une page garde ses poids sur les suivantes.
+
 ## Architecture
 
 | Dossier | Rôle |
@@ -30,7 +46,8 @@ npm run lint
 | `src/lib/viz/` | Palette validée, échelles, formes des marqueurs |
 | `src/components/viz/` | Primitives de tracé (frame, champ de décision, points, légende) |
 | `src/components/ui/` | Contrôles (sliders, segmented, panneaux, stats) |
-| `src/store/lab.ts` | Le dataset partagé par toutes les pages |
+| `src/store/` | Le dataset, le réseau et les points de régression partagés |
+| `scripts/` | Vérification de la calibration des défis |
 
 ### Pourquoi des implémentations maison
 
@@ -50,6 +67,14 @@ d'être certain que la différence observée vient de lui.
 
 Tout le calcul se fait côté client. `next build` produit un export statique
 (`output: "export"`), déployé sur GitHub Pages par `.github/workflows/deploy.yml`.
+
+## Vérifications
+
+```bash
+npm run lint
+npx tsc --noEmit
+npx tsx scripts/verify-challenges.ts   # chaque défi est gagnable, et pas gagné d'avance
+```
 
 ## Design
 

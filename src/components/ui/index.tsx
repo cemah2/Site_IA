@@ -295,7 +295,7 @@ export function Callout({
   title,
   children,
 }: {
-  kind?: "note" | "warning" | "insight";
+  kind?: "note" | "warning" | "insight" | "critical";
   title?: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -303,9 +303,16 @@ export function Callout({
     note: "border-line bg-surface-2/50",
     warning: "border-warning/30 bg-warning/[0.06]",
     insight: "border-accent/30 bg-accent/[0.06]",
+    critical: "border-critical/35 bg-critical/[0.06]",
   };
-  const icons = { note: "◈", warning: "▲", insight: "✦" };
-  const iconColors = { note: "text-ink-muted", warning: "text-warning", insight: "text-accent" };
+  // Status colours never carry meaning alone: each kind ships an icon too.
+  const icons = { note: "◈", warning: "▲", insight: "✦", critical: "■" };
+  const iconColors = {
+    note: "text-ink-muted",
+    warning: "text-warning",
+    insight: "text-accent",
+    critical: "text-critical",
+  };
   return (
     <div className={cx("rounded-lg border px-3.5 py-3", styles[kind])}>
       <div className="flex gap-2.5">
