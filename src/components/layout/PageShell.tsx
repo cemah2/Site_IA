@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cx } from "@/components/ui";
+import { ClientOnly, WorkbenchSkeleton } from "@/components/ui/ClientOnly";
 
 /**
  * Standard page header + body.
@@ -40,7 +41,12 @@ export function PageShell({
   );
 }
 
-/** The two-column workspace: visualisation left, controls right. */
+/**
+ * The two-column workspace: visualisation left, controls right.
+ *
+ * Client-only: everything inside is live model output, which cannot be
+ * pre-rendered reliably (see ClientOnly).
+ */
 export function Workbench({
   plot,
   controls,
@@ -53,18 +59,20 @@ export function Workbench({
   below?: React.ReactNode;
 }) {
   return (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="min-w-0">{plot}</div>
-      <div className="min-w-0 space-y-4">
-        <div className="rounded-xl border border-line bg-surface-1/80">
-          <header className="border-b border-line px-4 py-3">
-            <h2 className="text-sm font-semibold text-ink">{controlsTitle}</h2>
-          </header>
-          <div className="space-y-4 p-4">{controls}</div>
+    <ClientOnly fallback={<WorkbenchSkeleton />}>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0">{plot}</div>
+        <div className="min-w-0 space-y-4">
+          <div className="rounded-xl border border-line bg-surface-1/80">
+            <header className="border-b border-line px-4 py-3">
+              <h2 className="text-sm font-semibold text-ink">{controlsTitle}</h2>
+            </header>
+            <div className="space-y-4 p-4">{controls}</div>
+          </div>
+          {below}
         </div>
-        {below}
       </div>
-    </div>
+    </ClientOnly>
   );
 }
 

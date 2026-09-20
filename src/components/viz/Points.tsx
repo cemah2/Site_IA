@@ -3,7 +3,7 @@
 import * as React from "react";
 import type { Sample } from "@/lib/ml/types";
 import { shapePath } from "@/lib/viz/geometry";
-import { classColor, classShape, CHROME, withAlpha } from "@/lib/viz/palette";
+import { classColor, classShape, CHROME, STATUS, withAlpha } from "@/lib/viz/palette";
 import { usePlot } from "./Plot";
 
 export interface PointStyle {
@@ -77,17 +77,21 @@ export function Points({
             <path
               d={shapePath(classShape(s.y), cx, cy, r)}
               fill={st.dim ? withAlpha(color, 0.55) : color}
-              stroke={st.wrong ? CHROME.ink : CHROME.surface1}
-              strokeWidth={st.wrong ? 2 : 1.75}
+              stroke={CHROME.surface1}
+              strokeWidth={1.75}
               opacity={st.dim ? 0.85 : 1}
             />
+            {/* Misclassified: a small badge set beside the mark rather than a
+                cross drawn through it. Over the mark it hides the very point it
+                is annotating, and a field of large crosses reads as noise. */}
             {st.wrong && (
               <path
-                d={`M${cx - r * 2.1},${cy - r * 2.1}l${r * 4.2},${r * 4.2}M${cx + r * 2.1},${cy - r * 2.1}l${-r * 4.2},${r * 4.2}`}
-                stroke={CHROME.ink}
-                strokeWidth={1.25}
-                opacity={0.75}
+                d={`M${cx + r * 1.1},${cy - r * 2.3}l${r * 1.5},${r * 1.5}M${cx + r * 2.6},${cy - r * 2.3}l${-r * 1.5},${r * 1.5}`}
+                stroke={STATUS.critical}
+                strokeWidth={1.6}
+                strokeLinecap="round"
                 fill="none"
+                style={{ paintOrder: "stroke" }}
               />
             )}
           </g>
