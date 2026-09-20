@@ -1,8 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Button, Callout, Panel, Select, Slider, Stat, Toggle } from "@/components/ui";
-import { buildDataset, parseCsv, summarise, type ColumnSummary, type ParsedTable } from "@/lib/ml/csv";
+import { Button, Callout, Panel, Segmented, Select, Slider, Stat, Toggle } from "@/components/ui";
+import {
+  buildDataset,
+  buildPcaDataset,
+  parseCsv,
+  summarise,
+  type ColumnSummary,
+  type ParsedTable,
+} from "@/lib/ml/csv";
 import { formatNumber } from "@/lib/viz/geometry";
 import { useLab } from "@/store/lab";
 
@@ -33,6 +40,39 @@ interface Loaded {
 }
 
 /**
+ * How well one numeric column separates the classes of a label column.
+ *
+ * Between-class variance over within-class variance — the one-dimensional
+ * ancestor of Fisher's discriminant. It judges each column on its own, which is
+ * its limitation and worth stating: two columns that are useless separately can
+ * be excellent together, and no ranking of single columns will ever see that.
+ */
+function separability(table: ParsedTable, column: number, labelColumn: number): number {
+  const dc = table.decimalComma;
+  const byClass = new Map<string, number[]>();
+  for (const row of table.rows) {
+    const v = Number(dc ? (row[column] ?? "").replace(",", ".") : row[column]);
+    if (!Number.isFinite(v)) continue;
+    const k = (row[labelColumn] ?? "").trim();
+    const b = byClass.get(k);
+    if (b) b.push(v);
+    else byClass.set(k, [v]);
+  }
+  const groups = [...byClass.values()].filter((g) => g.length > 1);
+  if (groups.length < 2) return 0;
+  const means = groups.map(mean);
+  const vars = groups.map((g, i) => mean(g.map((v) => (v - means[i]) ** 2)));
+  const grand = mean(means);
+  const between = mean(means.map((m) => (m - grand) ** 2));
+  const within = mean(vars) || 1e-9;
+  return between / within;
+}
+
+function mean(values: number[]): number {
+  return values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+}
+
+/**
  * Bring your own data.
  *
  * The file never leaves the machine — there is no server to send it to, the
@@ -54,6 +94,7 @@ export function DataImport() {
   const [xCol, setXCol] = React.useState(0);
   const [yCol, setYCol] = React.useState(1);
   const [labelCol, setLabelCol] = React.useState(-1);
+  const [mode, setMode] = React.useState<"colonnes" | "pca">("colonnes");
   const [standardise, setStandardise] = React.useState(false);
   const [maxPoints, setMaxPoints] = React.useState(600);
   const [dragOver, setDragOver] = React.useState(false);
@@ -74,11 +115,17 @@ export function DataImport() {
           );
           return;
         }
-        // A sensible first guess: the two most informative numeric columns and
-        // the categorical column with the fewest distinct values.
+        // A sensible first guess for the label column: not "the one with the
+        // fewest values" — that picks `sex` over `species` on the penguins, and
+        // hands the reader the least interesting demonstration of the two — but
+        // the categorical column the numbers actually predict best.
         const label = columns
           .filter((c) => !c.numeric && c.distinct.length >= 2 && c.distinct.length <= 8)
-          .sort((a, b) => a.distinct.length - b.distinct.length)[0];
+          .map((c) => ({
+            c,
+            s: mean(numeric.map((n) => separability(table, n.index, c.index))),
+          }))
+          .sort((a, b) => b.s - a.s)[0]?.c;
         setXCol(numeric[0].index);
         setYCol(numeric[1].index);
         setLabelCol(label ? label.index : -1);
@@ -123,46 +170,44 @@ export function DataImport() {
     [adopt],
   );
 
+  /** Every numeric column: what PCA is given to work with. */
+  const numericIndices = React.useMemo(
+    () => (loaded?.columns ?? []).filter((c) => c.numeric).map((c) => c.index),
+    [loaded],
+  );
+
+  const pcaOut = React.useMemo(() => {
+    if (!loaded || mode !== "pca" || numericIndices.length < 2) return null;
+    return buildPcaDataset(
+      loaded.table,
+      numericIndices,
+      labelCol,
+      `${loaded.name} (composantes)`,
+      { maxPoints },
+    );
+  }, [loaded, mode, numericIndices, labelCol, maxPoints]);
+
   const built = React.useMemo(() => {
     if (!loaded) return null;
+    if (mode === "pca") return pcaOut?.built ?? null;
     return buildDataset(
       loaded.table,
       { x: xCol, y: yCol, label: labelCol },
       loaded.name,
       { maxPoints, standardise },
     );
-  }, [loaded, xCol, yCol, labelCol, maxPoints, standardise]);
+  }, [loaded, mode, pcaOut, xCol, yCol, labelCol, maxPoints, standardise]);
 
-  // Which pairs of columns separate the classes best, by a one-dimensional
-  // separability score per axis. Cheap, and enough to stop the reader from
+  // Which columns separate the classes best, by the same one-dimensional score
+  // used to pick the label column. Cheap, and enough to stop the reader from
   // staring at two columns that happen to be alphabetically first.
   const ranking = React.useMemo(() => {
     if (!loaded || labelCol < 0) return [];
-    const numeric = loaded.columns.filter((c) => c.numeric);
-    const dc = loaded.table.decimalComma;
-    const score = (idx: number): number => {
-      const byClass = new Map<string, number[]>();
-      for (const row of loaded.table.rows) {
-        const v = Number(dc ? (row[idx] ?? "").replace(",", ".") : row[idx]);
-        if (!Number.isFinite(v)) continue;
-        const k = (row[labelCol] ?? "").trim();
-        const b = byClass.get(k);
-        if (b) b.push(v);
-        else byClass.set(k, [v]);
-      }
-      const groups = [...byClass.values()].filter((g) => g.length > 1);
-      if (groups.length < 2) return 0;
-      const means = groups.map((g) => g.reduce((a, b) => a + b, 0) / g.length);
-      const vars = groups.map(
-        (g, i) => g.reduce((a, b) => a + (b - means[i]) ** 2, 0) / g.length,
-      );
-      const grand = means.reduce((a, b) => a + b, 0) / means.length;
-      const between = means.reduce((a, m) => a + (m - grand) ** 2, 0) / means.length;
-      const within = vars.reduce((a, b) => a + b, 0) / vars.length || 1e-9;
-      return between / within;
-    };
-    const scored = numeric.map((c) => ({ c, s: score(c.index) })).sort((a, b) => b.s - a.s);
-    return scored.slice(0, 4);
+    return loaded.columns
+      .filter((c) => c.numeric)
+      .map((c) => ({ c, s: separability(loaded.table, c.index, labelCol) }))
+      .sort((a, b) => b.s - a.s)
+      .slice(0, 4);
   }, [loaded, labelCol]);
 
   const columnOptions = (includeNone: boolean) => [
@@ -244,21 +289,44 @@ export function DataImport() {
         <>
           <Panel
             title="Quelles colonnes regarder"
-            subtitle={`${loaded.table.rows.length} lignes lues, ${loaded.columns.length} colonnes — le site en dessine deux à la fois`}
+            subtitle={`${loaded.table.rows.length} lignes lues, ${loaded.columns.length} colonnes — le site dessine un plan, donc deux axes`}
           >
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Select
-                label="Axe horizontal"
-                value={String(xCol)}
-                options={columnOptions(false)}
-                onChange={(v) => setXCol(Number(v))}
-              />
-              <Select
-                label="Axe vertical"
-                value={String(yCol)}
-                options={columnOptions(false)}
-                onChange={(v) => setYCol(Number(v))}
-              />
+            <Segmented
+              label="Comment fabriquer les deux axes"
+              value={mode}
+              options={[
+                {
+                  value: "colonnes",
+                  label: "Choisir deux colonnes",
+                  title: "Les axes restent vos colonnes, avec leur unité et leur nom.",
+                },
+                {
+                  value: "pca",
+                  label: `Combiner les ${numericIndices.length} colonnes (PCA)`,
+                  title:
+                    "Deux axes construits à partir de toutes les colonnes numériques, pour en garder le maximum.",
+                },
+              ]}
+              onChange={setMode}
+            />
+
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {mode === "colonnes" && (
+                <>
+                  <Select
+                    label="Axe horizontal"
+                    value={String(xCol)}
+                    options={columnOptions(false)}
+                    onChange={(v) => setXCol(Number(v))}
+                  />
+                  <Select
+                    label="Axe vertical"
+                    value={String(yCol)}
+                    options={columnOptions(false)}
+                    onChange={(v) => setYCol(Number(v))}
+                  />
+                </>
+              )}
               <Select
                 label="Colonne des classes"
                 value={String(labelCol)}
@@ -267,7 +335,15 @@ export function DataImport() {
               />
             </div>
 
-            {ranking.length > 1 && (
+            {mode === "pca" && pcaOut && (
+              <PcaDetails
+                explained={pcaOut.explained}
+                loadings={pcaOut.loadings}
+                columns={pcaOut.columns}
+              />
+            )}
+
+            {mode === "colonnes" && ranking.length > 1 && (
               <div className="mt-4 rounded-lg border border-line bg-surface-2/50 p-3">
                 <p className="mb-2 text-[11px] font-medium text-ink-2">
                   Les colonnes qui séparent le mieux vos classes
@@ -304,12 +380,20 @@ export function DataImport() {
                 onChange={setMaxPoints}
                 hint="Échantillon stratifié. Au-delà d'un millier, le SVM garde une matrice de n × n nombres et le nuage devient lourd à manipuler."
               />
-              <Toggle
-                label="Mettre les deux axes à la même échelle"
-                checked={standardise}
-                onChange={setStandardise}
-                hint="À activer si vos colonnes n'ont pas le même ordre de grandeur — sinon KNN et le SVM ne verront que la plus grande."
-              />
+              {mode === "colonnes" ? (
+                <Toggle
+                  label="Mettre les deux axes à la même échelle"
+                  checked={standardise}
+                  onChange={setStandardise}
+                  hint="À activer si vos colonnes n'ont pas le même ordre de grandeur — sinon KNN et le SVM ne verront que la plus grande."
+                />
+              ) : (
+                <p className="self-center text-[11px] leading-snug text-ink-muted">
+                  La PCA centre et réduit déjà chaque colonne avant de chercher les axes :
+                  sans cela, une colonne en euros écraserait une colonne en années par sa seule
+                  unité. L&apos;interrupteur « même échelle » n&apos;a donc rien à faire ici.
+                </p>
+              )}
             </div>
           </Panel>
 
@@ -378,6 +462,106 @@ export function DataImport() {
           </Panel>
         </>
       )}
+    </div>
+  );
+}
+
+/**
+ * What the two new axes are made of.
+ *
+ * PCA is only defensible on a teaching site if the reader can see the trade it
+ * makes. Two numbers say it: how much of the spread the two components keep
+ * (the bars), and what each component is actually a mixture of (the loadings).
+ * Without the second, "composante 1" is a black box and the page has replaced
+ * an honest limitation by a mysterious one.
+ */
+function PcaDetails({
+  explained,
+  loadings,
+  columns,
+}: {
+  explained: number[];
+  loadings: number[][];
+  columns: string[];
+}) {
+  const kept = (explained[0] ?? 0) + (explained[1] ?? 0);
+  const pct = (v: number) => `${(v * 100).toFixed(1)} %`;
+
+  return (
+    <div className="mt-4 rounded-lg border border-line bg-surface-2/50 p-3">
+      <p className="text-[11px] font-medium text-ink-2">
+        Ce que les deux axes retiennent de vos {columns.length} colonnes
+      </p>
+
+      <div className="mt-2 space-y-1">
+        {explained.slice(0, 6).map((e, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="w-[86px] shrink-0 text-[10.5px] text-ink-2">Composante {i + 1}</span>
+            <span className="h-2 min-w-0 flex-1 rounded-full bg-surface-3">
+              <span
+                className={`block h-full rounded-full ${i < 2 ? "bg-accent" : "bg-line-strong"}`}
+                style={{ width: `${Math.max(1, e * 100)}%` }}
+              />
+            </span>
+            <span className="tnum w-[52px] shrink-0 text-right text-[10.5px] text-ink-muted">
+              {pct(e)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-2 text-[10.5px] leading-snug text-ink-muted">
+        Le nuage affiché conserve <strong className="text-ink-2">{pct(kept)}</strong> de la
+        variance totale. Le reste existe toujours dans votre fichier : il est simplement
+        invisible sur un plan.
+      </p>
+
+      <p className="mt-3 text-[11px] font-medium text-ink-2">De quoi chaque axe est fait</p>
+      <div className="mt-1.5 space-y-1.5">
+        {columns.map((name, j) => (
+          <div key={name} className="flex items-center gap-2">
+            <span className="w-[86px] shrink-0 truncate text-[10.5px] text-ink-2" title={name}>
+              {name}
+            </span>
+            {[0, 1].map((c) => {
+              const v = loadings[c]?.[j] ?? 0;
+              return (
+                <span key={c} className="relative h-2 min-w-0 flex-1 rounded-full bg-surface-3">
+                  <span className="absolute inset-y-[-2px] left-1/2 w-px bg-line-strong" />
+                  <span
+                    className={`absolute inset-y-0 rounded-full ${c === 0 ? "bg-accent" : "bg-accent-dim"}`}
+                    style={{
+                      left: v >= 0 ? "50%" : `${50 - Math.abs(v) * 50}%`,
+                      width: `${Math.abs(v) * 50}%`,
+                    }}
+                  />
+                </span>
+              );
+            })}
+          </div>
+        ))}
+        <div className="flex items-center gap-2 pt-0.5">
+          <span className="w-[86px] shrink-0" />
+          <span className="min-w-0 flex-1 text-center text-[10px] text-ink-muted">
+            composante 1
+          </span>
+          <span className="min-w-0 flex-1 text-center text-[10px] text-ink-muted">
+            composante 2
+          </span>
+        </div>
+      </div>
+
+      <p className="mt-2 text-[10.5px] leading-snug text-ink-muted">
+        Un trait à droite du milieu : la colonne pousse l&apos;axe vers le haut ; à gauche, vers
+        le bas. Deux colonnes qui tirent du même côté disent à peu près la même chose.
+      </p>
+
+      <Callout kind="warning" title="Ce que vous venez de perdre">
+        Les axes ne sont plus des mesures : ils n&apos;ont ni unité ni nom, et une frontière de
+        décision tracée dessus ne se raconte plus en français. Vous gagnez de
+        l&apos;information, vous perdez l&apos;interprétabilité — c&apos;est le marché que fait
+        toute réduction de dimension.
+      </Callout>
     </div>
   );
 }

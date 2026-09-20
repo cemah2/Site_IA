@@ -51,7 +51,10 @@ export function Panel({
             {title && <h2 className="text-sm font-semibold text-ink">{title}</h2>}
             {subtitle && <p className="mt-0.5 text-xs text-ink-muted">{subtitle}</p>}
           </div>
-          <div className="flex items-start gap-2 sm:shrink-0">
+          {/* `min-w-0` and no `shrink-0`: a legend with several long class names
+              is wider than a 420 px column, and a header that refuses to shrink
+              pushes the whole page sideways. The legend wraps on its own. */}
+          <div className="flex min-w-0 flex-wrap items-start gap-2 sm:justify-end">
             {action}
             {exportName && <ExportPngButton name={exportName} target={bodyRef} />}
           </div>
@@ -277,7 +280,10 @@ export function Segmented<T extends string>({
             title={o.title}
             onClick={() => onChange(o.value)}
             className={cx(
-              "flex-1 rounded-[6px] font-medium transition-colors",
+              // `min-w-0`: without it a flex item refuses to go below its
+              // longest word, so a row of six or seven labels makes the whole
+              // page wider than a phone. The label wraps instead.
+              "min-w-0 flex-1 rounded-[6px] font-medium transition-colors",
               size === "sm" ? "px-2 py-1 text-[11px]" : "px-2.5 py-1.5 text-xs",
               value === o.value
                 ? "bg-surface-3 text-ink shadow-sm"

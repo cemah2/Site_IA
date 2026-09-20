@@ -1,3 +1,4 @@
+import { pca } from "./pca";
 import type { Dataset, Sample } from "./types";
 
 /**
@@ -202,6 +203,28 @@ export function buildDataset(
     usable.push({ x: toNumber(xs, dc), y: toNumber(ys, dc), label });
   }
 
+  return assemble(usable, [table.columns[choice.x] ?? "x", table.columns[choice.y] ?? "y"], name, dropped, {
+    maxPoints,
+    standardise,
+    seed,
+  });
+}
+
+/**
+ * The same construction, from coordinates computed elsewhere.
+ *
+ * Shared with `buildDataset` rather than duplicated because the parts that are
+ * easy to get subtly wrong — class ordering, the five-class cap, stratified
+ * subsampling — must behave identically whether the axes are two of the
+ * reader's columns or two components built from all of them.
+ */
+export function assemble(
+  usable: { x: number; y: number; label: string }[],
+  featureNames: [string, string],
+  name: string,
+  dropped: number,
+  { maxPoints = 600, standardise = false, seed = 7 }: BuildOptions = {},
+): BuiltDataset {
   // Classes ordered by frequency, so the ones that survive the cap are the ones
   // that actually carry the data.
   const counts = new Map<string, number>();
@@ -234,7 +257,7 @@ export function buildDataset(
     dataset: {
       name,
       samples,
-      featureNames: [table.columns[choice.x] ?? "x", table.columns[choice.y] ?? "y"],
+      featureNames,
       classNames: kept.length ? kept : ["tous"],
       domain: [paddedRange(xs), paddedRange(ys)],
     },
@@ -292,4 +315,56 @@ function paddedRange(values: number[]): [number, number] {
   const hi = Math.max(...values);
   const span = hi - lo || Math.max(1, Math.abs(hi));
   return [lo - span * 0.08, hi + span * 0.08];
+}
+
+/**
+ * Two axes built from *every* numeric column, instead of two chosen columns.
+ *
+ * This is the answer to the objection the import page raises against itself:
+ * a real table has a dozen numeric columns and the site draws two. Picking two
+ * discards what the others knew; this keeps as much of the spread as two axes
+ * can carry — at the price of axes that no longer have a unit or a name.
+ */
+export function buildPcaDataset(
+  table: ParsedTable,
+  numericColumns: number[],
+  labelColumn: number,
+  name: string,
+  options: BuildOptions = {},
+): { built: BuiltDataset; explained: number[]; loadings: number[][]; columns: string[] } | null {
+  const dc = table.decimalComma;
+  const rows: number[][] = [];
+  const labels: string[] = [];
+  let dropped = 0;
+
+  for (const row of table.rows) {
+    const values = numericColumns.map((i) => toNumber((row[i] ?? "").trim(), dc));
+    const label = labelColumn >= 0 ? (row[labelColumn] ?? "").trim() : "tous";
+    if (values.some((v) => !Number.isFinite(v)) || (labelColumn >= 0 && MISSING.has(label.toLowerCase()))) {
+      dropped++;
+      continue;
+    }
+    rows.push(values);
+    labels.push(label);
+  }
+
+  const result = pca(rows, true);
+  if (!result) return null;
+
+  const usable = result.points.map(([x, y], i) => ({ x, y, label: labels[i] }));
+  const pct = (v: number) => `${Math.round(v * 100)} %`;
+  const built = assemble(
+    usable,
+    [`Composante 1 (${pct(result.explained[0])})`, `Composante 2 (${pct(result.explained[1] ?? 0)})`],
+    name,
+    dropped,
+    { ...options, standardise: false },
+  );
+
+  return {
+    built,
+    explained: result.explained,
+    loadings: result.loadings,
+    columns: numericColumns.map((i) => table.columns[i] ?? `colonne ${i + 1}`),
+  };
 }

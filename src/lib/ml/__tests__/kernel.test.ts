@@ -12,6 +12,7 @@ import { LogisticRegression, sigmoid } from "../models/logistic";
 import { fitBoosting } from "../models/boosting";
 import { softmax } from "../models/activations";
 import { auc, confusionAt, curvePoints, metricsAt, type ScoredSample } from "../threshold";
+import { pca } from "../pca";
 import { DEFAULT_PARAMS } from "../registry";
 
 /**
@@ -268,4 +269,71 @@ test("normalisation d'un chiffre dessiné : recentré sur son centre de masse", 
   const centre = (DIGIT_SIZE - 1) / 2;
   assert.ok(Math.abs(cx / sum - centre) < 1.2, `centre x = ${cx / sum}`);
   assert.ok(Math.abs(cy / sum - centre) < 1.2, `centre y = ${cy / sum}`);
+});
+
+test("PCA : deux colonnes redondantes fusionnent dans la première composante", () => {
+  // Checkable by hand, on purpose. Column b is an exact copy of a, and c
+  // alternates in blocks of four (+1, −1, −1, +1), a pattern whose correlation
+  // with the linear column a is exactly zero — each block cancels. The
+  // correlation matrix is therefore [[1,1,0],[1,1,0],[0,0,1]], whose
+  // eigenvalues are 2, 1 and 0, and the first eigenvector is (a + b) / √2.
+  const rows = Array.from({ length: 200 }, (_, i) => [i, i, [1, -1, -1, 1][i % 4] * 0.02]);
+
+  const out = pca(rows, true);
+  assert.ok(out, "PCA n'a rien renvoyé");
+
+  const [l0, l1, l2] = out.loadings[0].map(Math.abs);
+  assert.ok(Math.abs(l0 - Math.SQRT1_2) < 1e-9, `charge a = ${l0}`);
+  assert.ok(Math.abs(l1 - Math.SQRT1_2) < 1e-9, `charge b = ${l1}`);
+  assert.ok(l2 < 1e-9, `charge de la troisième colonne = ${l2}`);
+
+  assert.ok(Math.abs(out.explained[0] - 2 / 3) < 1e-9, `part 1 = ${out.explained[0]}`);
+  assert.ok(Math.abs(out.explained[1] - 1 / 3) < 1e-9, `part 2 = ${out.explained[1]}`);
+  assert.ok(out.explained[2] < 1e-9, `part 3 = ${out.explained[2]}`);
+  assert.equal(out.points.length, rows.length);
+});
+
+test("PCA : sans centrage-réduction, c'est l'unité qui décide", () => {
+  // The same table, unstandardised. The third column spans ±0.02 against a
+  // column spanning 0 to 199, so it contributes essentially nothing — which is
+  // exactly why `standardise` defaults to true, and why the page says so.
+  const rows = Array.from({ length: 200 }, (_, i) => [i, i, [1, -1, -1, 1][i % 4] * 0.02]);
+
+  const out = pca(rows, false);
+  assert.ok(out);
+  assert.ok(out.explained[0] > 0.99999, `part 1 = ${out.explained[0]}`);
+});
+
+test("PCA : les composantes sont orthonormées et ordonnées", () => {
+  let state = 999;
+  const rand = () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296 - 0.5;
+  };
+  const rows = Array.from({ length: 120 }, () => {
+    const a = rand() * 4;
+    const b = rand();
+    return [a, a * 0.5 + b, b * 3, a - b];
+  });
+
+  const out = pca(rows, true);
+  assert.ok(out);
+
+  const dot = (u: number[], v: number[]) => u.reduce((s, x, i) => s + x * v[i], 0);
+  for (let i = 0; i < out.loadings.length; i++) {
+    assert.ok(Math.abs(dot(out.loadings[i], out.loadings[i]) - 1) < 1e-9, "vecteur non unitaire");
+    for (let j = i + 1; j < out.loadings.length; j++) {
+      assert.ok(Math.abs(dot(out.loadings[i], out.loadings[j])) < 1e-9, "axes non orthogonaux");
+    }
+  }
+  for (let i = 1; i < out.explained.length; i++) {
+    assert.ok(out.explained[i] <= out.explained[i - 1] + 1e-12, "composantes mal ordonnées");
+  }
+  assert.equal(out.points.length, rows.length);
+});
+
+test("PCA : trop peu de lignes ou de colonnes, pas de résultat inventé", () => {
+  assert.equal(pca([[1, 2], [3, 4]]), null);
+  assert.equal(pca([[1], [2], [3], [4]]), null);
+  assert.equal(pca([]), null);
 });

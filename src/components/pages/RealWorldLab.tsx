@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { PageShell, SectionTitle } from "@/components/layout/PageShell";
-import { Button, Callout, Panel, Segmented, Toggle } from "@/components/ui";
+import { Button, Callout, Panel, Select, Toggle } from "@/components/ui";
 import { ClientOnly } from "@/components/ui/ClientOnly";
 import { G } from "@/components/ui/Glossary";
 import { ALGO_ORDER, ALGOS, DEFAULT_PARAMS, type AlgoId } from "@/lib/ml/registry";
@@ -201,12 +201,13 @@ function SnippetBench() {
 
       <div className="space-y-4">
         <Panel title="Réglages" bodyClassName="space-y-4 p-4">
-          <Segmented
+          {/* A Select rather than a segmented row: seven model names side by
+              side in a 300 px column are unreadable at any window width. */}
+          <Select
             label="Modèle"
             value={algo}
             options={ALGO_ORDER.map((id) => ({ value: id, label: ALGOS[id].label }))}
             onChange={(v) => setAlgo(v as AlgoId)}
-            size="sm"
           />
           <Toggle
             label="Mettre les features à l'échelle"

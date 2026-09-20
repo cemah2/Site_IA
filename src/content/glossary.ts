@@ -78,6 +78,15 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     example:
       "Conséquence directe : au-delà d'un certain niveau de bruit, 100 % de réussite est impossible — et un modèle qui y arrive a mémorisé le hasard.",
   },
+  pca: {
+    term: "PCA (analyse en composantes principales)",
+    short:
+      "Une façon de remplacer beaucoup de colonnes par deux ou trois axes nouveaux, construits comme des mélanges des colonnes de départ et choisis pour conserver le plus d'étalement possible. C'est une projection : on aplatit un objet en dimension 12 sur une feuille.",
+    example:
+      "Une ombre sur un mur. Bien orientée, on reconnaît la personne ; mal orientée, on ne voit qu'un trait. La PCA cherche l'orientation qui montre le plus.",
+    href: "/donnees/vos-donnees/",
+    hrefLabel: "L'essayer sur un fichier",
+  },
   outlier: {
     term: "Outlier (point aberrant)",
     short:

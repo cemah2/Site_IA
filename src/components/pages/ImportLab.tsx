@@ -58,6 +58,13 @@ export function ImportLab() {
             chaque colonne isolément — deux colonnes médiocres séparément peuvent être
             excellentes ensemble, et inversement.
           </p>
+          <p className="mt-2.5 text-[12px] leading-relaxed text-ink-2">
+            D&apos;où le second mode, « combiner les colonnes » : la{" "}
+            <G t="pca">PCA</G> fabrique deux axes à partir de <em>toutes</em> vos colonnes
+            numériques, orientés de façon à conserver le plus d&apos;étalement possible. Le
+            panneau vous dit alors quel pourcentage de la variance survit et de quoi chaque
+            axe est fait.
+          </p>
         </Panel>
 
         <Panel title="Les échelles comptent">
@@ -81,7 +88,7 @@ export function ImportLab() {
         </Panel>
       </div>
 
-      <SectionTitle hint="Deux questions à se poser avec un fichier réel sous les yeux.">
+      <SectionTitle hint="Trois questions à se poser avec un fichier réel sous les yeux.">
         Vérifiez que c&apos;est passé
       </SectionTitle>
 
@@ -132,6 +139,30 @@ export function ImportLab() {
                 c&apos;est de prendre les 600 <em>premières</em> lignes d&apos;un fichier trié
                 par classe — et c&apos;est précisément pour ça que l&apos;échantillonnage est
                 stratifié.
+              </>
+            ),
+          },
+          {
+            id: "im3",
+            question:
+              "Vous passez en mode « combiner les colonnes » et le site annonce : composante 1, 73 % ; composante 2, 23 %. Qu'est-ce que cela veut dire ?",
+            options: [
+              { id: "a", label: "Le modèle aura 96 % d'accuracy" },
+              {
+                id: "b",
+                label:
+                  "Le nuage affiché conserve 96 % de l'étalement total de vos colonnes — le reste existe encore, mais il est invisible sur un plan",
+              },
+              { id: "c", label: "96 % de vos lignes ont été gardées" },
+            ],
+            answer: 1,
+            explanation: (
+              <>
+                C&apos;est une part de <G t="variance">variance</G>, pas une performance et pas
+                un nombre de lignes. Une valeur élevée dit que l&apos;aplatissement a peu coûté ;
+                elle ne dit rien sur la séparabilité des classes — on peut très bien conserver
+                99 % de l&apos;étalement et perdre précisément la direction qui distinguait deux
+                espèces. Et le prix est constant : les axes n&apos;ont plus ni unité ni nom.
               </>
             ),
           },

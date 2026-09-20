@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const SECTIONS: { title: string; keys: (keyof typeof GLOSSARY)[] }[] = [
   {
     title: "Les données",
-    keys: ["feature", "label", "dataset", "sample", "supervise", "nonsupervise", "normalisation", "bruit", "outlier"],
+    keys: ["feature", "label", "dataset", "sample", "supervise", "nonsupervise", "normalisation", "pca", "bruit", "outlier"],
   },
   { title: "Le modèle", keys: ["modele", "parametre", "hyperparametre", "frontiere", "prediction"] },
   {
