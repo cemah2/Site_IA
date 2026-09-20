@@ -80,9 +80,10 @@ const CHALLENGES: Challenge[] = [
     title: "Résolvez les spirales",
     brief: (
       <>
-        Trois spirales imbriquées. Trouvez une architecture de réseau et un temps
-        d&apos;entraînement qui dépassent <strong>88 % sur le jeu de test</strong>. Attention :
-        un réseau trop petit n&apos;y arrivera jamais, quel que soit le nombre d&apos;epochs.
+        Trois spirales imbriquées. Trouvez des réglages qui dépassent{" "}
+        <strong>88 % sur le jeu de test</strong>. Deux pièges vous attendent : un réseau trop
+        petit n&apos;y arrivera jamais, et un learning rate trop grand non plus — même avec un
+        grand réseau et beaucoup d&apos;epochs.
       </>
     ),
     dataset: { kind: "spirals", n: 300, noise: 0.06, seed: 9, nClasses: 3 },
@@ -94,43 +95,46 @@ const CHALLENGES: Challenge[] = [
         kind: "choice",
         options: [
           { value: "4", label: "4" },
-          { value: "8", label: "8" },
-          { value: "12-8", label: "12-8" },
-          { value: "16-12-8", label: "16-12-8" },
+          { value: "16", label: "16" },
+          { value: "20-16", label: "20-16" },
+          { value: "24-16-12", label: "24-16-12" },
         ],
       },
       {
-        key: "activation",
-        label: "Activation",
+        key: "lr",
+        label: <Tex>{String.raw`\alpha`}</Tex>,
         kind: "choice",
         options: [
-          { value: "tanh", label: "Tanh" },
-          { value: "relu", label: "ReLU" },
+          { value: "0.05", label: "0,05" },
+          { value: "0.15", label: "0,15" },
+          { value: "0.3", label: "0,3" },
         ],
       },
-      { key: "epochs", label: "Epochs", kind: "slider", min: 20, max: 500, step: 20 },
+      { key: "epochs", label: "Epochs", kind: "slider", min: 100, max: 900, step: 100 },
     ],
-    initial: { arch: "4", activation: "tanh", epochs: 60 },
+    initial: { arch: "4", lr: "0.3", epochs: 100 },
     toParams: (v) => ({
       hidden: String(v.arch).split("-").map(Number),
-      activation: v.activation as ActivationName,
+      activation: "tanh" as ActivationName,
       epochs: Number(v.epochs),
-      learningRate: 0.12,
+      learningRate: Number(v.lr),
     }),
     goal: (r) => r.testAcc >= 0.88,
     goalLabel: "Accuracy de test ≥ 88 %",
     hint: (
       <>
-        Commencez par augmenter les epochs avec la petite architecture : vous verrez qu&apos;elle
-        plafonne. La capacité manquante ne se compense pas par du temps — c&apos;est du{" "}
-        <strong>biais</strong>, pas de la variance.
+        Commencez par augmenter les epochs avec la petite architecture : vous verrez
+        qu&apos;elle plafonne. Ça, c&apos;est du <strong>biais</strong> — il faut plus de capacité.
+        Ensuite, avec un grand réseau, essayez les trois learning rates : le plus grand donne
+        le <em>pire</em> résultat.
       </>
     ),
     lesson: (
       <>
-        Une spirale à trois bras exige une frontière très courbée. Il faut à la fois assez de
-        neurones pour la représenter <em>et</em> assez d&apos;epochs pour que la descente de
-        gradient l&apos;ait trouvée.
+        Deux conditions indépendantes. Assez de neurones pour <em>représenter</em> une frontière
+        aussi courbée, et un pas assez petit pour que la descente de gradient la{" "}
+        <em>trouve</em> au lieu d&apos;osciller autour. Un réseau surdimensionné avec{" "}
+        <Tex>{String.raw`\alpha = 0{,}3`}</Tex> reste bloqué très bas.
       </>
     ),
   },

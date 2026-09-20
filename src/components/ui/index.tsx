@@ -30,13 +30,15 @@ export function Panel({
         className,
       )}
     >
+      {/* Header stacks on phones: side by side, a long title and a legend each
+          get a sliver of the width and both become unreadable. */}
       {(title || action) && (
-        <header className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
+        <header className="flex flex-col gap-2 border-b border-line px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <div className="min-w-0">
             {title && <h2 className="text-sm font-semibold text-ink">{title}</h2>}
             {subtitle && <p className="mt-0.5 text-xs text-ink-muted">{subtitle}</p>}
           </div>
-          {action && <div className="shrink-0">{action}</div>}
+          {action && <div className="sm:shrink-0">{action}</div>}
         </header>
       )}
       <div className={cx("p-4", bodyClassName)}>{children}</div>

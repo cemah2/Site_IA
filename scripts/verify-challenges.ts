@@ -46,14 +46,14 @@ const cases: Case[] = [
     name: "Résolvez les spirales",
     dataset: { kind: "spirals", n: 300, noise: 0.06, seed: 9, nClasses: 3 },
     algo: "mlp",
-    initial: { hidden: [4], activation: "tanh", epochs: 60, learningRate: 0.12 },
-    grid: ["4", "8", "12-8", "16-12-8"].flatMap((arch) =>
-      (["tanh", "relu"] as const).flatMap((activation) =>
-        [60, 140, 220, 300, 380, 460, 500].map((epochs) => ({
+    initial: { hidden: [4], activation: "tanh", epochs: 100, learningRate: 0.3 },
+    grid: ["4", "16", "20-16", "24-16-12"].flatMap((arch) =>
+      [0.05, 0.15, 0.3].flatMap((learningRate) =>
+        [100, 300, 500, 700, 900].map((epochs) => ({
           hidden: arch.split("-").map(Number),
-          activation,
+          activation: "tanh" as const,
           epochs,
-          learningRate: 0.12,
+          learningRate,
         })),
       ),
     ),
