@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, cx, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
@@ -73,7 +75,7 @@ export function DecisionTreeLab() {
       lede={
         <>
           Un arbre pose une suite de questions simples — <Tex>{String.raw`x_1 \le 0{,}42\ ?`}</Tex>{" "}
-          — et chaque réponse réduit l&apos;incertitude. La vraie question n&apos;est pas
+          — et chaque réponse réduit l&apos;<G t="impurete">impureté</G>. La vraie question n&apos;est pas
           « comment il classe » mais <strong>« pourquoi cette coupure et pas une
           autre ? »</strong> Cliquez sur un nœud : il a gardé toutes les coupures qu&apos;il a
           envisagées, avec leur gain.
@@ -486,6 +488,77 @@ export function DecisionTreeLab() {
               </Callout>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "dt1",
+              question:
+                "Un nœud contient 40 points : 20 de chaque classe. Quelle est son impureté de Gini ?",
+              options: [
+                { id: "a", label: "0 — c'est un nœud parfait" },
+                { id: "b", label: "0,5 — le maximum pour deux classes" },
+                { id: "c", label: "1 — l'incertitude totale" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Gini vaut <Tex>{String.raw`1 - (0{,}5^2 + 0{,}5^2) = 0{,}5`}</Tex>, et
+                  c&apos;est bien le pire cas possible avec deux classes : impossible de faire
+                  mieux qu&apos;un tirage à pile ou face. Gini vaut 0 quand le nœud est pur et ne
+                  dépasse jamais <Tex>{String.raw`1 - 1/k`}</Tex> pour <Tex>k</Tex> classes.
+                  Cliquez la racine de l&apos;arbre pour lire sa valeur réelle.
+                </>
+              ),
+            },
+            {
+              id: "dt2",
+              question:
+                "Vous montez la profondeur maximale jusqu'à 12. L'accuracy d'entraînement atteint 100 % et celle de test baisse. Quel réglage attaque le problème le plus directement ?",
+              options: [
+                { id: "a", label: "Augmenter le nombre minimum d'échantillons par feuille" },
+                { id: "b", label: "Changer Gini pour l'entropie" },
+                { id: "c", label: "Ajouter des classes" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  Une feuille qui contient un seul point est une règle apprise sur un exemple :
+                  c&apos;est du <G t="overfitting">surapprentissage</G> à l&apos;état pur.
+                  Exiger, disons, cinq points par feuille interdit ces règles-là, quelle que soit
+                  la profondeur autorisée. Gini et l&apos;entropie, elles, donnent presque
+                  toujours les mêmes coupures — c&apos;est un choix qui se remarque peu.
+                </>
+              ),
+            },
+            {
+              id: "dt3",
+              question:
+                "Sur « Séparables linéairement », le nuage est incliné à 35°. Pourquoi l'arbre fait-il un escalier au lieu d'une droite ?",
+              options: [
+                { id: "a", label: "Parce qu'il manque de profondeur" },
+                {
+                  id: "b",
+                  label:
+                    "Parce que chaque question porte sur une seule feature : les coupures sont forcément perpendiculaires aux axes",
+                },
+                { id: "c", label: "Parce que les données sont bruitées" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  « <Tex>{String.raw`x_1 \le 0{,}42`}</Tex> ? » découpe le plan par une verticale,
+                  jamais par une oblique. Une frontière inclinée ne peut donc être qu&apos;<em>
+                  approchée</em> par un escalier, et il faut beaucoup de marches — donc beaucoup
+                  de profondeur, donc du surapprentissage — pour qu&apos;elle soit fine. C&apos;est
+                  la limite structurelle des arbres, et la raison pour laquelle un SVM linéaire
+                  écrase un arbre sur ce dataset précis.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

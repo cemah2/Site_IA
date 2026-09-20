@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, Divider, Panel, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { LineChart } from "@/components/viz/LineChart";
 import { Plot } from "@/components/viz/Plot";
@@ -449,6 +451,81 @@ export function BiasVarianceLab() {
               </Callout>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "bv1",
+              question: "Qu'est-ce que la variance d'un modèle, concrètement ?",
+              options: [
+                { id: "a", label: "L'écart entre ses prédictions et la vérité" },
+                {
+                  id: "b",
+                  label:
+                    "De combien il changerait si on l'entraînait sur un autre échantillon tiré de la même source",
+                },
+                { id: "c", label: "La dispersion des données d'entrée" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  La <G t="variance">variance</G> est une propriété de la <em>procédure</em>, pas
+                  d&apos;un modèle donné : elle se mesure en réentraînant sur des échantillons
+                  différents et en regardant à quel point les courbes obtenues divergent. C&apos;est
+                  exactement ce que dessine le faisceau de cette page. Le{" "}
+                  <G t="biais">biais</G>, lui, est l&apos;erreur qui reste même en moyennant
+                  toutes ces courbes.
+                </>
+              ),
+            },
+            {
+              id: "bv2",
+              question: "Un modèle à fort biais et faible variance, à quoi ressemble-t-il ?",
+              options: [
+                { id: "a", label: "Il colle aux données et change à chaque réentraînement" },
+                {
+                  id: "b",
+                  label:
+                    "Il se trompe régulièrement, mais toujours de la même façon — comme une droite sur une courbe",
+                },
+                { id: "c", label: "Il est très précis partout" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Stable et faux : réentraîné sur d&apos;autres données, il donne presque la même
+                  droite, et cette droite rate la courbure de la même manière. C&apos;est le
+                  degré 1 dans les contrôles. La réponse (a) décrit exactement l&apos;inverse —
+                  faible biais, forte variance, c&apos;est-à-dire le degré 15.
+                </>
+              ),
+            },
+            {
+              id: "bv3",
+              question: "Pourquoi l'erreur totale ne peut-elle jamais descendre à zéro ?",
+              options: [
+                { id: "a", label: "Parce qu'aucun modèle n'est parfait" },
+                {
+                  id: "b",
+                  label:
+                    "Parce qu'une part de l'erreur vient du bruit des données elles-mêmes, qu'aucun modèle ne peut expliquer",
+                },
+                { id: "c", label: "Parce que le calcul est approché" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  L&apos;erreur se décompose en biais² + variance + bruit irréductible. Ce
+                  dernier terme ne dépend pas du modèle : si la même entrée peut donner deux
+                  sorties différentes, aucune fonction ne peut produire les deux. Un modèle qui
+                  prétend atteindre zéro sur des données bruitées est en train de mémoriser le
+                  bruit — c&apos;est-à-dire de sur-apprendre.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

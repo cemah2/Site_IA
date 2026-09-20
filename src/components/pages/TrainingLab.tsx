@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, cx, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
@@ -504,6 +506,77 @@ export function TrainingLab() {
               </p>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "tr1",
+              question:
+                "La loss d'entraînement baisse toujours, mais celle de test remonte depuis l'epoch 40. Que faire ?",
+              options: [
+                { id: "a", label: "Continuer : elle finira par redescendre" },
+                {
+                  id: "b",
+                  label:
+                    "S'arrêter autour de l'epoch 40 — ou régulariser. Après, le réseau apprend le bruit du jeu d'entraînement",
+                },
+                { id: "c", label: "Augmenter le learning rate" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Le point où les deux courbes se séparent est le meilleur modèle que cette
+                  configuration produira : c&apos;est le principe de l&apos;<em>early stopping</em>.
+                  Tout ce qui suit est du <G t="overfitting">surapprentissage</G>. Monter{" "}
+                  <Tex>{String.raw`\lambda`}</Tex> ou réduire l&apos;architecture repousse ce
+                  point ; insister, jamais.
+                </>
+              ),
+            },
+            {
+              id: "tr2",
+              question: "Que se passe-t-il si vous retirez toutes les couches cachées ?",
+              options: [
+                { id: "a", label: "Le réseau refuse de s'entraîner" },
+                {
+                  id: "b",
+                  label:
+                    "Il devient une régression logistique : sa frontière ne peut plus être qu'une droite",
+                },
+                { id: "c", label: "Il devient plus lent mais reste aussi puissant" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Entrées, poids, softmax : il ne reste que ça, ce qui est mot pour mot le modèle
+                  de la page <a href="/regression/logistique/">régression logistique</a>.
+                  Essayez-le sur « Deux lunes » : la loss se bloque et la frontière reste droite,
+                  quel que soit le nombre d&apos;epochs.
+                </>
+              ),
+            },
+            {
+              id: "tr3",
+              question: "Une epoch, c'est quoi exactement ?",
+              options: [
+                { id: "a", label: "Une mise à jour des poids" },
+                { id: "b", label: "Un passage complet sur toutes les données d'entraînement" },
+                { id: "c", label: "Un test sur le jeu de validation" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Une <G t="epoch">epoch</G> contient autant de mises à jour qu&apos;il y a
+                  d&apos;exemples (ou de lots). C&apos;est pour ça que doubler le nombre de points
+                  double le temps d&apos;une epoch sans rien dire sur le nombre d&apos;epochs
+                  nécessaires — les deux quantités sont indépendantes, et les confondre est une
+                  source classique de comparaisons fausses.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

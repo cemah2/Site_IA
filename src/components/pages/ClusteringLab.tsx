@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, Divider, Panel, Slider, Stat, Toggle } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { LineChart } from "@/components/viz/LineChart";
 import { Plot } from "@/components/viz/Plot";
@@ -439,6 +441,82 @@ export function ClusteringLab() {
               </p>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "cl1",
+              question: "En quoi k-means diffère-t-il fondamentalement de Nearest Centroid ?",
+              options: [
+                { id: "a", label: "Il utilise une autre distance" },
+                {
+                  id: "b",
+                  label:
+                    "Il n'a pas d'étiquettes : il doit inventer les groupes au lieu de résumer des groupes donnés",
+                },
+                { id: "c", label: "Il est plus rapide" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Les deux finissent avec des centres et des distances, mais Nearest Centroid
+                  relève de l&apos;<G t="supervise">apprentissage supervisé</G> — on lui dit qui
+                  est quoi — et k-means de l&apos;
+                  <G t="nonsupervise">apprentissage non supervisé</G>. D&apos;où la boucle :
+                  faute d&apos;étiquettes, il alterne « attribuer les points » et « recalculer les
+                  centres » jusqu&apos;à ce que plus rien ne bouge.
+                </>
+              ),
+            },
+            {
+              id: "cl2",
+              question: "Deux lancements de k-means donnent deux résultats différents. Pourquoi ?",
+              options: [
+                { id: "a", label: "À cause d'une erreur de calcul" },
+                {
+                  id: "b",
+                  label:
+                    "L'initialisation est aléatoire, et l'algorithme ne converge que vers un minimum local",
+                },
+                { id: "c", label: "Parce que les données changent" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Chaque étape fait baisser l&apos;inertie, donc l&apos;algorithme s&apos;arrête —
+                  mais rien ne garantit qu&apos;il s&apos;arrête au meilleur endroit. En pratique
+                  on relance plusieurs fois et on garde la meilleure inertie ; l&apos;
+                  initialisation k-means++ réduit fortement le problème en écartant les centres
+                  de départ.
+                </>
+              ),
+            },
+            {
+              id: "cl3",
+              question: "Comment choisir K quand on n'a aucune étiquette pour vérifier ?",
+              options: [
+                { id: "a", label: "Prendre le K qui minimise l'inertie" },
+                {
+                  id: "b",
+                  label:
+                    "Chercher le « coude » : le K après lequel l'inertie ne baisse plus beaucoup — en sachant que c'est un jugement, pas un calcul",
+                },
+                { id: "c", label: "Prendre K = nombre de points / 10" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Minimiser l&apos;inertie donne toujours <Tex>K = n</Tex> : un cluster par point,
+                  inertie nulle, information nulle. Le coude est la réponse usuelle, et il faut
+                  assumer qu&apos;il est souvent ambigu. Le clustering ne dit pas combien de
+                  groupes existent ; il dit à quoi ressemblent les groupes <em>si</em> on décide
+                  qu&apos;il y en a K.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

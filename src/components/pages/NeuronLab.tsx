@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { Plot } from "@/components/viz/Plot";
 import { WeightLegend } from "@/components/viz/NetworkDiagram";
@@ -346,6 +348,81 @@ export function NeuronLab() {
               </p>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "nu1",
+              question: "À quoi sert le biais b ?",
+              options: [
+                { id: "a", label: "À corriger les erreurs du neurone" },
+                {
+                  id: "b",
+                  label:
+                    "À décaler le seuil de déclenchement : sans lui, la frontière passerait forcément par l'origine",
+                },
+                { id: "c", label: "À normaliser la sortie entre 0 et 1" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Avec <Tex>{String.raw`z = w_1x_1 + w_2x_2`}</Tex> seul, <Tex>z = 0</Tex> est
+                  toujours une droite passant par (0, 0). Le <G t="biaisneurone">biais</G>{" "}
+                  l&apos;autorise à être ailleurs. Mettez-le à zéro dans les contrôles : la
+                  frontière se recolle à l&apos;origine et y reste, quoi que fassent les poids.
+                </>
+              ),
+            },
+            {
+              id: "nu2",
+              question: "Que se passerait-il si on empilait des neurones sans fonction d'activation ?",
+              options: [
+                { id: "a", label: "Le réseau serait plus lent mais plus précis" },
+                {
+                  id: "b",
+                  label:
+                    "La composition de fonctions linéaires reste linéaire : dix couches auraient exactement le pouvoir d'une seule",
+                },
+                { id: "c", label: "Les gradients exploseraient" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  C&apos;est le seul argument qui justifie l&apos;existence des{" "}
+                  <G t="activation">fonctions d&apos;activation</G>, et il est purement
+                  algébrique : une matrice multipliée par une matrice est une matrice. Toute la
+                  profondeur ne sert à rien tant qu&apos;une non-linéarité ne s&apos;intercale pas
+                  entre les couches.
+                </>
+              ),
+            },
+            {
+              id: "nu3",
+              question:
+                "Vous multipliez w₁ et w₂ par 10, en laissant b proportionnel. Qu'est-ce qui change ?",
+              options: [
+                { id: "a", label: "La frontière tourne" },
+                {
+                  id: "b",
+                  label:
+                    "La frontière reste au même endroit, mais la transition de la sortie devient beaucoup plus abrupte",
+                },
+                { id: "c", label: "Rien du tout" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  <Tex>z = 0</Tex> définit le même ensemble de points quand toute
+                  l&apos;équation est multipliée par 10. En revanche un point qui avait{" "}
+                  <Tex>{String.raw`z = 0{,}3`}</Tex> passe à 3 : la sigmoïde, elle, distingue très bien les
+                  deux. Grands <G t="poids">poids</G> = modèle catégorique, et c&apos;est
+                  exactement ce que la <G t="regularisation">régularisation</G> empêche.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

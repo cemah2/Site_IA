@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
@@ -126,8 +128,9 @@ export function FeaturesLab() {
       title="Features"
       lede={
         <>
-          Un modèle ne voit ni des images, ni des personnes, ni des fleurs. Il voit{" "}
-          <strong>des vecteurs de nombres</strong>. Le choix de ces nombres — leur nature, leur
+          Un <G t="modele">modèle</G> ne voit ni des images, ni des personnes, ni des fleurs. Il
+          voit <strong>des vecteurs de nombres</strong> — ses{" "}
+          <G t="feature">features</G>. Le choix de ces nombres — leur nature, leur
           échelle, leur système de coordonnées — change davantage le résultat que le choix de
           l&apos;algorithme.
         </>
@@ -364,6 +367,85 @@ export function FeaturesLab() {
               </p>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "ft1",
+              question:
+                "Une feature va de 0 à 50 000, l'autre de 0 à 1. Quels modèles en souffrent, et lesquels s'en moquent ?",
+              options: [
+                { id: "a", label: "Tous en souffrent également" },
+                {
+                  id: "b",
+                  label:
+                    "Ceux qui calculent des distances en souffrent (KNN, SVM, k-means) ; les arbres, qui comparent une feature à la fois, s'en moquent",
+                },
+                { id: "c", label: "Aucun : les modèles normalisent automatiquement" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Une <G t="distance">distance euclidienne</G> additionne des écarts au carré :
+                  celui de la grande feature écrase l&apos;autre, qui devient invisible. Un arbre,
+                  lui, ne pose jamais de question mêlant deux features — « cette colonne
+                  dépasse-t-elle ce seuil ? » a le même sens quelle que soit l&apos;unité. Savoir
+                  dans quelle catégorie tombe un modèle évite la moitié des mauvaises surprises.
+                </>
+              ),
+            },
+            {
+              id: "ft2",
+              question:
+                "Passer un problème en coordonnées polaires rend les cercles concentriques séparables par une droite. Qu'a-t-on gagné ?",
+              options: [
+                { id: "a", label: "Des données supplémentaires" },
+                {
+                  id: "b",
+                  label:
+                    "Rien dans les données : on a seulement donné au modèle un système de coordonnées où sa forme de frontière suffit",
+                },
+                { id: "c", label: "Un modèle plus puissant" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Les points n&apos;ont pas bougé — seule leur description a changé. Mais un
+                  modèle linéaire ne peut tracer qu&apos;une droite : dans les bonnes
+                  coordonnées, cette droite suffit ; dans les mauvaises, aucun réglage ne le
+                  sauvera. C&apos;est l&apos;idée entière du <G t="kernel">kernel trick</G>, et
+                  c&apos;est aussi ce qu&apos;une couche cachée de réseau apprend à faire toute
+                  seule.
+                </>
+              ),
+            },
+            {
+              id: "ft3",
+              question:
+                "Quelle différence entre normaliser (min-max) et standardiser (centrer-réduire) ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "Min-max force l'intervalle [0, 1] et se fait écraser par un outlier ; centrer-réduire met la moyenne à 0 et l'écart-type à 1, sans borner",
+                },
+                { id: "b", label: "Ce sont deux noms pour la même chose" },
+                { id: "c", label: "Centrer-réduire ne marche que sur des données gaussiennes" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  Un seul point à 100 fois l&apos;échelle habituelle suffit à tasser toutes les
+                  autres valeurs du min-max dans les premiers centièmes. Le centrage-réduction
+                  résiste mieux et ne borne pas — ce qui est un avantage ou un inconvénient selon
+                  ce qui suit. Aucune des deux ne <em>suppose</em> une gaussienne ; elles se
+                  contentent d&apos;utiliser moyenne et écart-type, qui existent toujours.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

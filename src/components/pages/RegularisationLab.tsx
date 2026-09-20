@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { LineChart } from "@/components/viz/LineChart";
 import { Plot } from "@/components/viz/Plot";
@@ -413,6 +415,77 @@ export function RegularisationLab() {
               </p>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "rg1",
+              question: "Que pénalise exactement la régularisation L2 ?",
+              options: [
+                { id: "a", label: "Le nombre de paramètres du modèle" },
+                { id: "b", label: "La somme des carrés des poids" },
+                { id: "c", label: "Le nombre d'erreurs sur l'entraînement" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Le modèle garde tous ses paramètres ; on lui fait simplement payer leur{" "}
+                  <em>amplitude</em>. Or de gros <G t="poids">poids</G> sont ce qui permet des
+                  variations brusques : les brider revient à exiger une fonction plus lisse, sans
+                  jamais rien retirer au modèle.
+                </>
+              ),
+            },
+            {
+              id: "rg2",
+              question: "Quelle est la différence pratique majeure entre L1 et L2 ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "L1 met certains poids exactement à zéro — elle sélectionne des features ; L2 les rapetisse tous sans jamais les annuler",
+                },
+                { id: "b", label: "L1 est plus rapide à calculer" },
+                { id: "c", label: "L2 fonctionne uniquement pour la régression" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  La pénalité L1 garde une pente constante jusqu&apos;à zéro, donc elle continue
+                  de pousser un petit poids jusqu&apos;à l&apos;annuler ; celle de L2 s&apos;affaiblit
+                  à mesure que le poids rapetisse, et il ne l&apos;atteint jamais. D&apos;où
+                  l&apos;usage de L1 quand on cherche <em>quelles</em> features comptent, et de L2
+                  quand on veut seulement de la stabilité.
+                </>
+              ),
+            },
+            {
+              id: "rg3",
+              question: "Que se passe-t-il si λ devient très grand ?",
+              options: [
+                { id: "a", label: "Le modèle devient parfait" },
+                {
+                  id: "b",
+                  label:
+                    "Les poids sont écrasés vers zéro : le modèle prédit une constante, et on passe du surapprentissage au sous-apprentissage",
+                },
+                { id: "c", label: "L'entraînement diverge" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  La <G t="regularisation">régularisation</G> est un curseur entre deux erreurs,
+                  pas une amélioration gratuite. Poussez <Tex>{String.raw`\lambda`}</Tex> au
+                  maximum ci-dessus : la courbe s&apos;aplatit jusqu&apos;à devenir une ligne
+                  horizontale. Le bon <Tex>{String.raw`\lambda`}</Tex> se choisit par{" "}
+                  <a href="/concepts/validation-croisee/">validation croisée</a>, jamais à
+                  l&apos;œil.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

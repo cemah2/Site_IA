@@ -5,6 +5,8 @@ import { PageShell, SectionTitle } from "@/components/layout/PageShell";
 import { Button, Callout, cx, Panel, Slider } from "@/components/ui";
 import { ClientOnly } from "@/components/ui/ClientOnly";
 import { Tex } from "@/components/math/Math";
+import { G } from "@/components/ui/Glossary";
+import { Quiz } from "@/components/lab/Quiz";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
 import { MiniField } from "@/components/viz/MiniField";
@@ -75,7 +77,8 @@ export function DatasetsLab() {
       title="Datasets"
       lede={
         <>
-          Chacune de ces dix formes a été construite pour casser une hypothèse précise. Ce ne
+          Chacune de ces dix formes de <G t="dataset">dataset</G> a été construite pour casser
+          une hypothèse précise. Ce ne
           sont pas des décorations : ce sont les <strong>contre-exemples</strong> qui révèlent
           ce qu&apos;un algorithme suppose sans le dire. Le dataset que vous choisissez ici vous
           suit sur toutes les autres pages du site.
@@ -263,6 +266,79 @@ export function DatasetsLab() {
             </p>
           </div>
         </Panel>
+
+        <Quiz
+          questions={[
+            {
+              id: "ds1",
+              question:
+                "Quel est le seul de ces datasets qu'un modèle à frontière droite peut résoudre correctement ?",
+              options: [
+                { id: "a", label: "Deux lunes" },
+                { id: "b", label: "Séparables linéairement" },
+                { id: "c", label: "Cercles concentriques" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  C&apos;est précisément le rôle de ce dataset : servir de témoin. Les lunes
+                  s&apos;imbriquent, les cercles ont le même centre — aucune droite ne les
+                  sépare, quel que soit le modèle linéaire choisi. Un algorithme qui échoue sur
+                  « Séparables linéairement » a un problème ; un algorithme linéaire qui échoue
+                  sur les cercles fait simplement ce qu&apos;il sait faire.
+                </>
+              ),
+            },
+            {
+              id: "ds2",
+              question:
+                "Sur « Déséquilibré », un modèle atteint 90 % d'accuracy. Est-ce bon ?",
+              options: [
+                { id: "a", label: "Oui, 90 % est un bon score" },
+                {
+                  id: "b",
+                  label:
+                    "Pas forcément : si la classe majoritaire représente 90 % des points, répondre toujours « majoritaire » donne déjà 90 %",
+                },
+                { id: "c", label: "Impossible à dire sans connaître le modèle" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Toute accuracy se lit face à sa <G t="baseline">baseline</G>. Sur un jeu
+                  déséquilibré, un modèle qui ne détecte jamais la classe rare peut afficher un
+                  score flatteur tout en étant inutile — c&apos;est le piège classique en
+                  détection de fraude ou de maladie. Le{" "}
+                  <G t="rappel">rappel</G> par classe, lui, le trahit immédiatement.
+                </>
+              ),
+            },
+            {
+              id: "ds3",
+              question: "À quoi sert de garder la même graine aléatoire d'une page à l'autre ?",
+              options: [
+                { id: "a", label: "À accélérer le calcul" },
+                {
+                  id: "b",
+                  label:
+                    "À ce que les points soient rigoureusement identiques, de sorte qu'un changement de résultat vienne du réglage et de rien d'autre",
+                },
+                { id: "c", label: "À éviter que les modèles trichent" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Comparer deux modèles sur deux nuages différents ne dit rien. Le générateur est
+                  déterministe pour que la seule variable d&apos;une expérience soit celle que
+                  vous bougez — c&apos;est la même exigence que dans n&apos;importe quel
+                  protocole expérimental. Le bouton « Autre tirage » change délibérément la
+                  graine quand c&apos;est la stabilité qu&apos;on veut tester.
+                </>
+              ),
+            },
+          ]}
+        />
+
       </div>
     </PageShell>
   );

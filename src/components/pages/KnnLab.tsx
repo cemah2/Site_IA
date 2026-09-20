@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, Divider, Panel, Segmented, Slider, Stat, Toggle } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
@@ -84,9 +86,10 @@ export function KnnLab() {
       title="K-Nearest Neighbors"
       lede={
         <>
-          KNN ne s&apos;entraîne pas. Le modèle <em>est</em> le jeu de données, et tout le
-          travail arrive au moment de répondre : regarder les <Tex>K</Tex> points les plus
-          proches, et prendre la classe majoritaire. Ce qui rend <Tex>K</Tex> si intéressant,
+          <G t="knn">KNN</G> ne s&apos;entraîne pas. Le <G t="modele">modèle</G> <em>est</em> le
+          jeu de données, et tout le travail arrive au moment de répondre : regarder les{" "}
+          <Tex>K</Tex> points les plus proches au sens de la{" "}
+          <G t="distance">distance euclidienne</G>, et prendre la classe majoritaire. Ce qui rend <Tex>K</Tex> si intéressant,
           c&apos;est qu&apos;il règle une seule chose — <strong>jusqu&apos;où le modèle regarde
           avant de répondre</strong>.
         </>
@@ -430,16 +433,22 @@ export function KnnLab() {
                 Chaque requête coûte <Tex>O(n \cdot d)</Tex> — il compare au dataset entier.
               </p>
               <p>
-                <strong><Tex>K</Tex> contrôle le compromis biais-variance.</strong> Petit{" "}
-                <Tex>K</Tex> : variance élevée, biais faible — la frontière colle aux données, y
+                <strong>
+                  <Tex>K</Tex> contrôle le compromis <G t="biais">biais</G>-
+                  <G t="variance">variance</G>.
+                </strong>{" "}
+                Petit <Tex>K</Tex> : variance élevée, biais faible — la frontière colle aux données, y
                 compris à leur bruit. Grand <Tex>K</Tex> : variance faible, biais élevé — la
                 frontière se lisse, jusqu&apos;à devenir constante quand <Tex>K = n</Tex>.
               </p>
               <p>
                 <strong>Le choix de la distance fait partie du modèle.</strong> Passez en
                 Manhattan : la boule unité devient un losange, et les voisins retenus changent.
-                Conséquence pratique majeure : <strong>les features doivent être
-                normalisées</strong>. Une feature en euros (0 à 50 000) écrase totalement une
+                Conséquence pratique majeure :{" "}
+                <strong>
+                  les <G t="feature">features</G> doivent être{" "}
+                  <G t="normalisation">normalisées</G>
+                </strong>. Une feature en euros (0 à 50 000) écrase totalement une
                 feature en années (0 à 80) dans le calcul de distance.
               </p>
               <p>
@@ -484,6 +493,80 @@ export function KnnLab() {
           }
         />
 
+
+        <Quiz
+          questions={[
+            {
+              id: "knn1",
+              question:
+                "Avec K = 1, l'accuracy mesurée sur les données d'entraînement vaut toujours 100 %. Pourquoi ?",
+              options: [
+                { id: "a", label: "Parce que K = 1 est le meilleur réglage" },
+                {
+                  id: "b",
+                  label:
+                    "Parce que le plus proche voisin d'un point d'entraînement, c'est lui-même",
+                },
+                { id: "c", label: "Parce que le modèle a mémorisé les étiquettes" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  À distance zéro de lui-même, un point est son propre plus proche voisin : il
+                  vote pour sa propre classe et ne peut pas se tromper. Ce 100 % ne mesure donc
+                  rien du tout. C&apos;est le cas d&apos;école du chiffre qui a l&apos;air
+                  excellent et ne dit rien — et la raison pour laquelle toute évaluation sérieuse
+                  se fait sur des points mis de côté.
+                </>
+              ),
+            },
+            {
+              id: "knn2",
+              question:
+                "Une feature est en euros (0 à 50 000), l'autre en années (0 à 80). Que fait KNN ?",
+              options: [
+                { id: "a", label: "Il équilibre automatiquement les deux" },
+                {
+                  id: "b",
+                  label:
+                    "Il ignore presque totalement les années : la distance est dominée par les euros",
+                },
+                { id: "c", label: "Il donne plus de poids aux années, plus petites" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Dans <Tex>{String.raw`\sqrt{(\Delta\text{euros})^2 + (\Delta\text{ans})^2}`}</Tex>,
+                  un écart de 3 000 € écrase un écart de 40 ans. La feature en années devient
+                  invisible sans que rien ne le signale. D&apos;où la règle : pour tout modèle
+                  fondé sur des distances, <G t="normalisation">normaliser</G> d&apos;abord. La
+                  page <a href="/donnees/features/">Features</a> le montre en direct.
+                </>
+              ),
+            },
+            {
+              id: "knn3",
+              question:
+                "Vous montez K jusqu'à K = n (le nombre total de points). Que prédit le modèle ?",
+              options: [
+                { id: "a", label: "La classe la plus fréquente du dataset, partout" },
+                { id: "b", label: "La classe du point le plus proche" },
+                { id: "c", label: "Une classe au hasard" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  Avec K = n, tous les points votent pour chaque requête, et le résultat ne dépend
+                  plus du tout d&apos;où on se trouve : c&apos;est la majorité globale, partout.
+                  La frontière disparaît et le modèle devient la{" "}
+                  <G t="baseline">baseline</G> — le biais maximal. Poussez le curseur au bout
+                  pour voir le plan devenir uni.
+                </>
+              ),
+            },
+          ]}
+        />
+
         <div className="space-y-4">
           <Callout kind="insight" title="Les trois expériences à faire">
             <ul className="mt-1.5 space-y-1.5">
@@ -503,11 +586,14 @@ export function KnnLab() {
           </Callout>
 
           <Callout kind="warning" title="Le piège classique">
-            Choisir <Tex>K</Tex> en regardant l&apos;accuracy sur les données d&apos;entraînement
+            Choisir <Tex>K</Tex> en regardant l&apos;<G t="accuracy">accuracy</G> sur les données
+            d&apos;<G t="entrainement">entraînement</G>
             donne toujours <Tex>K = 1</Tex> — parce qu&apos;avec <Tex>K = 1</Tex> le plus proche
             voisin d&apos;un point d&apos;entraînement est lui-même, et l&apos;accuracy vaut 100 %.
             Le panneau « Quel K choisir ? » mesure sur des points mis de côté, jamais sur ceux
-            qui ont servi.
+            qui ont servi. Et un seul découpage ne suffit pas non plus :{" "}
+            <a href="/concepts/validation-croisee/">la validation croisée</a> montre de combien
+            ce chiffre peut bouger d&apos;un tirage à l&apos;autre.
           </Callout>
 
           <Panel title="Cas pratiques" subtitle="Où KNN est réellement utilisé">

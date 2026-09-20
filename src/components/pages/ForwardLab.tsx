@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, cx, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { ClassMark } from "@/components/viz/Legend";
@@ -434,6 +436,80 @@ export function ForwardLab() {
               />
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "fw1",
+              question: "Que calcule exactement une couche pendant la forward propagation ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "Pour chaque neurone : une somme pondérée des sorties précédentes, plus un biais, puis une activation",
+                },
+                { id: "b", label: "La distance entre l'entrée et un modèle mémorisé" },
+                { id: "c", label: "La probabilité de chaque classe" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  Deux opérations, toujours les mêmes, à chaque{" "}
+                  <G t="couche">couche</G> : combinaison linéaire, puis non-linéarité. Seule la
+                  dernière couche produit des probabilités, et seulement parce qu&apos;on y ajoute
+                  un <G t="softmax">softmax</G>.
+                </>
+              ),
+            },
+            {
+              id: "fw2",
+              question: "Quelle information est perdue en passant d'une couche à la suivante ?",
+              options: [
+                { id: "a", label: "Aucune : l'information est conservée" },
+                {
+                  id: "b",
+                  label:
+                    "Tout ce que l'activation écrase — avec ReLU, l'amplitude de toutes les valeurs négatives devient zéro",
+                },
+                { id: "c", label: "Les entrées d'origine, qui sont effacées" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Chaque couche est une <em>compression avec perte</em>, et c&apos;est voulu : un
+                  réseau qui conserverait tout ne ferait qu&apos;un changement de coordonnées.
+                  L&apos;apprentissage consiste à choisir <em>quoi</em> jeter — ce qui distingue
+                  un chiffre d&apos;un autre — et à jeter le reste.
+                </>
+              ),
+            },
+            {
+              id: "fw3",
+              question:
+                "Un même neurone caché s'allume très fort pour deux entrées très différentes. Que peut-on en conclure ?",
+              options: [
+                { id: "a", label: "Le réseau est mal entraîné" },
+                {
+                  id: "b",
+                  label:
+                    "Qu'il a détecté quelque chose de commun aux deux — le motif auquel ses poids répondent",
+                },
+                { id: "c", label: "Que ces deux entrées appartiennent à la même classe" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Un neurone ne reconnaît pas une classe, il reconnaît un <em>motif</em> dans ses
+                  entrées. Deux chiffres différents peuvent parfaitement partager un trait
+                  horizontal. C&apos;est la couche suivante qui combine ces détections en une
+                  décision — et c&apos;est exactement ce que montre la page{" "}
+                  <a href="/reseaux/chiffres/">chiffres manuscrits</a>.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

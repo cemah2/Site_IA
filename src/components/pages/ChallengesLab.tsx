@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { PageShell } from "@/components/layout/PageShell";
+import { G } from "@/components/ui/Glossary";
 import { Button, Callout, cx, Panel, Segmented, Slider, Stat } from "@/components/ui";
 import { ClientOnly } from "@/components/ui/ClientOnly";
 import { Tex } from "@/components/math/Math";
@@ -285,7 +286,9 @@ export function ChallengesLab() {
       title="Défis"
       lede={
         <>
-          Quatre problèmes qui ne se résolvent pas en poussant tous les curseurs au maximum.
+          Quatre problèmes qui ne se résolvent pas en poussant tous les curseurs au maximum. Le
+          score qui compte est toujours celui du <G t="test">jeu de test</G>, jamais celui des
+          points que le modèle a vus.
           Chacun a un critère de réussite vérifié en direct, et chacun a été construit autour
           d&apos;une idée précise — que vous découvrirez en essayant, pas en lisant.
         </>

@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, cx, Divider, Panel, Slider, Stat, Toggle } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
@@ -79,7 +81,8 @@ export function RandomForestLab() {
       lede={
         <>
           Un seul arbre est instable : changez quelques points et sa structure entière bascule.
-          Random Forest transforme ce défaut en méthode — entraîner beaucoup d&apos;arbres{" "}
+          C&apos;est de la <G t="variance">variance</G>, et Random Forest — une{" "}
+          <G t="ensemble">méthode d&apos;ensemble</G> — transforme ce défaut en méthode — entraîner beaucoup d&apos;arbres{" "}
           <strong>délibérément différents</strong>, puis voter. Ce n&apos;est pas la qualité des
           arbres qui fait la performance, c&apos;est leur <strong>désaccord</strong>.
         </>
@@ -407,6 +410,77 @@ export function RandomForestLab() {
               />
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "rf1",
+              question:
+                "Pourquoi une forêt de dix arbres identiques ne vaudrait-elle rien de plus qu'un seul arbre ?",
+              options: [
+                { id: "a", label: "Parce qu'elle serait dix fois plus lente" },
+                {
+                  id: "b",
+                  label:
+                    "Parce que dix votes identiques donnent le même résultat qu'un seul : c'est le désaccord qui corrige",
+                },
+                { id: "c", label: "Parce que les arbres identiques se sur-ajustent davantage" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Le vote ne sert à quelque chose que si les votants se trompent sur des points{" "}
+                  <em>différents</em>. D&apos;où les deux sources de désaccord délibéré :
+                  chaque arbre est entraîné sur un tirage différent des données (le{" "}
+                  <G t="bagging">bagging</G>) et ne considère qu&apos;une partie des features à
+                  chaque coupure. Réduire le nombre d&apos;arbres à 1 dans les contrôles, puis le
+                  remonter, rend l&apos;effet visible sur la frontière.
+                </>
+              ),
+            },
+            {
+              id: "rf2",
+              question:
+                "En passant de 1 à 30 arbres, la frontière devient beaucoup plus lisse. Qu'est-ce qui a diminué ?",
+              options: [
+                { id: "a", label: "Le biais" },
+                { id: "b", label: "La variance" },
+                { id: "c", label: "Les deux" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Moyenner des modèles qui se trompent indépendamment réduit la{" "}
+                  <G t="variance">variance</G> — leur instabilité — sans changer ce que la famille
+                  de modèles est capable de représenter, donc sans toucher au{" "}
+                  <G t="biais">biais</G>. C&apos;est la raison pour laquelle on met dans une forêt
+                  des arbres <em>profonds</em> : leur biais est déjà faible, il ne reste qu&apos;à
+                  éteindre la variance.
+                </>
+              ),
+            },
+            {
+              id: "rf3",
+              question: "Qu'est-ce que la forêt fait perdre par rapport à l'arbre seul ?",
+              options: [
+                { id: "a", label: "De l'accuracy" },
+                { id: "b", label: "La lisibilité : on ne peut plus lire la règle de décision" },
+                { id: "c", label: "La capacité à gérer plusieurs classes" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Un arbre se raconte : « si le montant dépasse 60 € et que le client est nouveau,
+                  alors… ». Trente arbres qui votent ne se racontent pas. C&apos;est un vrai
+                  arbitrage, pas un détail : dans un contexte où une décision doit être justifiée
+                  — crédit, médecine, droit — l&apos;arbre seul reste parfois préféré malgré une
+                  accuracy inférieure.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

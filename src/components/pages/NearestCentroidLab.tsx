@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, Divider, Panel, Stat, Toggle } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
@@ -70,6 +72,8 @@ export function NearestCentroidLab() {
           « la classe dont le centre est le plus proche ». C&apos;est le modèle le plus
           simple qui apprenne réellement quelque chose : il tient en{" "}
           <Tex>{String.raw`k \times d`}</Tex> nombres et s&apos;entraîne en une seule passe.
+          Tout le vocabulaire est cliquable : <G t="centroide">centroïde</G>,{" "}
+          <G t="distance">distance euclidienne</G>, <G t="frontiere">frontière de décision</G>.
         </>
       }
     >
@@ -315,8 +319,8 @@ export function NearestCentroidLab() {
           technique={
             <>
               <p>
-                Pour chaque classe <Tex>c</Tex>, on calcule le vecteur moyen de ses
-                échantillons d&apos;entraînement. La règle de décision assigne un point au
+                Pour chaque classe <Tex>c</Tex>, on calcule le vecteur moyen de ses{" "}
+                <G t="sample">échantillons</G> d&apos;<G t="entrainement">entraînement</G>. La règle de décision assigne un point au
                 centroïde le plus proche au sens euclidien.
               </p>
               <p>
@@ -331,7 +335,10 @@ export function NearestCentroidLab() {
                 le plus économique du site, à tous les points de vue.
               </p>
               <p>
-                Conséquence directe : il est <strong>extrêmement sensible aux outliers</strong>,
+                Conséquence directe : il est{" "}
+                <strong>
+                  extrêmement sensible aux <G t="outlier">outliers</G>
+                </strong>,
                 parce que la moyenne l&apos;est. Un seul point très éloigné déplace le centroïde de
                 toute sa classe. Glissez un point loin dans le graphique et regardez le{" "}
                 <Tex>+</Tex> bouger.
@@ -376,6 +383,76 @@ export function NearestCentroidLab() {
           }
         />
 
+
+        <Quiz
+          questions={[
+            {
+              id: "nc1",
+              question:
+                "Vous glissez un seul point très loin, hors du nuage de sa classe. Qu'arrive-t-il à la frontière ?",
+              options: [
+                { id: "a", label: "Rien : un point isolé ne pèse presque pas" },
+                { id: "b", label: "Elle se déplace, parce que la moyenne de la classe se déplace" },
+                { id: "c", label: "Elle se courbe autour du point" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Tout le modèle est une moyenne, et une moyenne n&apos;a aucune défense contre
+                  une valeur extrême : un point sur cinquante placé dix fois plus loin déplace le
+                  centroïde d&apos;un cinquantième de cette distance. Essayez-le au-dessus, le{" "}
+                  <Tex>+</Tex> bouge à vue d&apos;œil. La frontière, elle, reste une droite : ce
+                  modèle n&apos;a aucun moyen d&apos;en produire une autre.
+                </>
+              ),
+            },
+            {
+              id: "nc2",
+              question:
+                "Sur « Cercles concentriques », l'accuracy tombe autour de 50 %. Pourquoi aucun réglage n'y changera rien ?",
+              options: [
+                { id: "a", label: "Il faudrait plus de points" },
+                {
+                  id: "b",
+                  label:
+                    "Les deux classes ont presque le même centre, et la règle ne compare que des distances à des centres",
+                },
+                { id: "c", label: "Les centroïdes sont mal initialisés" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Le cercle intérieur et l&apos;anneau extérieur ont le même centre de gravité.
+                  Les deux distances sont donc quasi égales partout, et la décision devient un
+                  tirage au sort. Il n&apos;y a rien à régler — ce modèle n&apos;a pas de
+                  réglage — il faut changer de modèle. C&apos;est du{" "}
+                  <G t="underfitting">sous-apprentissage</G> par construction.
+                </>
+              ),
+            },
+            {
+              id: "nc3",
+              question:
+                "Avec 3 classes au lieu de 2, à quoi ressemble la frontière ?",
+              options: [
+                { id: "a", label: "À trois droites qui se rejoignent en un point" },
+                { id: "b", label: "À une courbe" },
+                { id: "c", label: "À une seule droite, comme avant" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  Entre chaque paire de centres, la frontière est la médiatrice de leur segment —
+                  une droite. Avec trois centres, ces médiatrices se coupent en un point commun et
+                  découpent le plan en trois régions : c&apos;est le{" "}
+                  <strong>diagramme de Voronoï</strong> des centroïdes. Passez à 3 classes dans
+                  les contrôles pour le voir apparaître.
+                </>
+              ),
+            },
+          ]}
+        />
+
         <div className="space-y-4">
           <Callout kind="insight" title="L'expérience à faire">
             Passez le dataset sur <strong>Clusters + outliers</strong>. Les points aberrants
@@ -384,7 +461,8 @@ export function NearestCentroidLab() {
           </Callout>
 
           <Callout kind="warning" title="Ce que « confiance » veut dire ici">
-            L&apos;ombrage du plan vient d&apos;un softmax sur les distances négatives. Ce n&apos;est{" "}
+            L&apos;ombrage du plan vient d&apos;un <G t="softmax">softmax</G> sur les distances
+            négatives. Ce n&apos;est{" "}
             <strong>pas</strong> une probabilité : Nearest Centroid n&apos;est pas un modèle
             probabiliste. C&apos;est une reformulation monotone de la distance, utile pour voir
             où la décision est serrée, rien de plus. Pour de vraies probabilités, voir{" "}

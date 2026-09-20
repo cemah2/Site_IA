@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { PageShell, Workbench } from "@/components/layout/PageShell";
+import { G } from "@/components/ui/Glossary";
 import { Button, Callout, cx, Divider, Panel, Segmented, Select, Slider, Stat, Toggle } from "@/components/ui";
 import { Tex } from "@/components/math/Math";
 import { ConfusionMatrix } from "@/components/viz/ConfusionMatrix";
@@ -105,8 +106,9 @@ export function PlaygroundLab() {
       title="Playground"
       lede={
         <>
-          Tout est réglable ici. Choisissez un problème, un algorithme, poussez ses paramètres
-          jusqu&apos;à ce qu&apos;ils cassent quelque chose, et lisez le diagnostic. Vous pouvez
+          Tout est réglable ici. Choisissez un problème, un algorithme, poussez ses{" "}
+          <G t="hyperparametre">hyperparamètres</G> jusqu&apos;à ce qu&apos;ils cassent quelque
+          chose, et lisez le diagnostic. Vous pouvez
           aussi dessiner votre propre dataset directement dans le graphique.
         </>
       }

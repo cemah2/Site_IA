@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, Divider, Panel, Select, Slider, Stat, Toggle } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { Plot, localPoint, type PlotFrame } from "@/components/viz/Plot";
 import { LineChart } from "@/components/viz/LineChart";
@@ -431,6 +433,78 @@ export function LinearRegressionLab() {
               />
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "lr1",
+              question:
+                "Vous éloignez un seul point très loin de la droite. Pourquoi la droite le suit-elle autant ?",
+              options: [
+                { id: "a", label: "Parce qu'il y a peu de points" },
+                {
+                  id: "b",
+                  label:
+                    "Parce que le coût élève l'erreur au carré : un résidu deux fois plus grand pèse quatre fois plus",
+                },
+                { id: "c", label: "Parce que la droite passe toujours par tous les extrêmes" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Le carré est ce qui rend le problème résoluble d&apos;un trait de plume — il
+                  existe une formule exacte — mais c&apos;est aussi ce qui donne un pouvoir
+                  démesuré aux <G t="outlier">points aberrants</G>. Avec une valeur absolue à la
+                  place, la droite les ignorerait davantage, au prix d&apos;un calcul itératif.
+                  Rien n&apos;est gratuit.
+                </>
+              ),
+            },
+            {
+              id: "lr2",
+              question: "Que mesure exactement un résidu ?",
+              options: [
+                { id: "a", label: "La distance la plus courte entre le point et la droite" },
+                { id: "b", label: "L'écart vertical entre la vraie valeur et celle prédite" },
+                { id: "c", label: "L'erreur de la droite sur l'ensemble des points" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Verticalement, pas perpendiculairement : le modèle prédit <Tex>y</Tex> à partir
+                  de <Tex>x</Tex>, donc l&apos;erreur ne se mesure que sur <Tex>y</Tex>. Ça a
+                  l&apos;air d&apos;un détail et ça ne l&apos;est pas — la droite obtenue en
+                  minimisant les distances perpendiculaires est une <em>autre</em> droite, et
+                  elle répond à une autre question.
+                </>
+              ),
+            },
+            {
+              id: "lr3",
+              question:
+                "Pourquoi cette page peut-elle afficher la meilleure droite instantanément, alors que la page suivante a besoin d'une descente de gradient ?",
+              options: [
+                { id: "a", label: "Parce qu'elle a moins de points" },
+                {
+                  id: "b",
+                  label:
+                    "Parce que le coût quadratique a un minimum donné par une formule fermée ; presque aucun autre modèle n'en a",
+                },
+                { id: "c", label: "Parce que la descente de gradient est plus précise" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Annuler la dérivée du coût donne ici un système linéaire, donc une solution
+                  directe. C&apos;est une chance, et c&apos;est l&apos;exception : dès qu&apos;on
+                  ajoute une sigmoïde, une couche cachée ou une marge, la formule disparaît et il
+                  faut <G t="descente">descendre</G>.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

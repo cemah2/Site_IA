@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, Divider, Panel, Segmented, Slider, Stat, Toggle } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
@@ -81,7 +83,8 @@ export function SvmLab() {
       lede={
         <>
           Entre deux classes séparables il existe une infinité de droites. Le SVM en choisit
-          une seule : celle qui laisse <strong>le plus de place</strong> de chaque côté. Cette
+          une seule : celle qui laisse <strong>le plus de place</strong> de chaque côté — la{" "}
+          <G t="marge">marge</G> la plus large. Cette
           exigence a deux conséquences remarquables — la frontière ne dépend que d&apos;une
           poignée de points, et elle peut devenir arbitrairement courbe sans jamais quitter
           les mathématiques de la ligne droite.
@@ -406,6 +409,81 @@ export function SvmLab() {
               />
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "svm1",
+              question:
+                "Vous supprimez un point loin de la frontière, qui n'est pas cerclé. Que devient le modèle ?",
+              options: [
+                { id: "a", label: "La frontière se déplace un peu" },
+                { id: "b", label: "Rien ne change : ce point n'entrait pas dans le calcul" },
+                { id: "c", label: "La marge s'élargit" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  La solution ne dépend que des <G t="vecteursupport">vecteurs de support</G> —
+                  les points cerclés, sur ou dans la marge. Tous les autres pourraient
+                  disparaître sans que la droite bouge d&apos;un pixel. C&apos;est une propriété
+                  qu&apos;aucun autre modèle du site ne possède : supprimez des points au hasard
+                  au-dessus et regardez le compteur de vecteurs de support, lui, ne pas bouger.
+                </>
+              ),
+            },
+            {
+              id: "svm2",
+              question: "Que fait exactement le paramètre C quand on le fait tendre vers l'infini ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "Il interdit toute erreur d'entraînement, quitte à réduire la marge à presque rien",
+                },
+                { id: "b", label: "Il élargit la marge au maximum" },
+                { id: "c", label: "Il rend le modèle plus régularisé" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  <Tex>C</Tex> est le prix d&apos;une erreur. Très grand, la moindre violation
+                  coûte tellement cher que le modèle tord sa frontière pour attraper jusqu&apos;au
+                  point le plus aberrant : marge étroite, <G t="overfitting">surapprentissage</G>.
+                  Très petit, il accepte des erreurs pour garder une marge large et se
+                  régularise. Montez et descendez <Tex>C</Tex> avec un outlier dans le nuage :
+                  c&apos;est le réglage le plus visible de la page.
+                </>
+              ),
+            },
+            {
+              id: "svm3",
+              question:
+                "Le « kernel trick » consiste à projeter les points dans un espace de plus grande dimension. Que fait-on réellement ?",
+              options: [
+                { id: "a", label: "On calcule les nouvelles coordonnées, puis on sépare" },
+                {
+                  id: "b",
+                  label:
+                    "On ne calcule jamais ces coordonnées : seuls les produits scalaires entre points sont nécessaires, et le kernel les donne directement",
+                },
+                { id: "c", label: "On ajoute des features au dataset" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Toute la résolution du SVM ne fait intervenir les points que par paires, à
+                  travers leur produit scalaire. Un <G t="kernel">kernel</G> calcule ce produit
+                  scalaire <em>tel qu&apos;il serait</em> dans l&apos;espace transformé, sans
+                  jamais y aller — et pour le kernel RBF cet espace est de dimension infinie,
+                  donc littéralement incalculable. L&apos;animation 3D montre l&apos;idée ;
+                  l&apos;algorithme, lui, reste en 2D.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

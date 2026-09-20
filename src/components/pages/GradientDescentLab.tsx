@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { CostSurface3D } from "@/components/viz/CostSurface3D";
 import { LineChart } from "@/components/viz/LineChart";
@@ -485,6 +487,78 @@ export function GradientDescentLab() {
               </p>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "gd1",
+              question: "Le learning rate est trop grand. Qu'observe-t-on sur la courbe de coût ?",
+              options: [
+                { id: "a", label: "Elle descend très lentement" },
+                { id: "b", label: "Elle oscille et peut remonter jusqu'à exploser" },
+                { id: "c", label: "Elle se stabilise à une valeur trop élevée" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Un pas trop long saute par-dessus le minimum et atterrit plus haut de
+                  l&apos;autre côté ; au pas suivant, la pente est plus forte encore, donc le pas
+                  est plus long. Le mécanisme s&apos;emballe de lui-même. La réponse (a) décrit un{" "}
+                  <G t="learningrate">learning rate</G> trop <em>petit</em>, et la réponse (c)
+                  décrit un minimum local — un autre problème.
+                </>
+              ),
+            },
+            {
+              id: "gd2",
+              question: "Que se passe-t-il quand le gradient devient nul ?",
+              options: [
+                { id: "a", label: "Le modèle a trouvé la meilleure solution possible" },
+                {
+                  id: "b",
+                  label:
+                    "Les pas s'arrêtent, mais rien ne garantit que ce point soit le minimum global",
+                },
+                { id: "c", label: "L'algorithme redémarre ailleurs" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Le <G t="gradient">gradient</G> est local : il dit seulement qu&apos;on est au
+                  fond d&apos;<em>une</em> cuvette. Sur la surface de coût d&apos;une régression
+                  linéaire il n&apos;y en a qu&apos;une, donc c&apos;est bien le minimum global ;
+                  sur celle d&apos;un réseau de neurones, il y en a une infinité. Rien dans
+                  l&apos;algorithme ne permet de faire la différence.
+                </>
+              ),
+            },
+            {
+              id: "gd3",
+              question:
+                "Deux paramètres ont des échelles très différentes : la cuvette de coût est un ravin allongé. Quel est l'effet ?",
+              options: [
+                { id: "a", label: "Aucun, la descente suit la pente" },
+                {
+                  id: "b",
+                  label:
+                    "La trajectoire zigzague en travers du ravin et avance très lentement dans le sens de la longueur",
+                },
+                { id: "c", label: "La descente diverge systématiquement" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Le gradient pointe vers la plus forte pente, qui est la pente <em>latérale</em>
+                  du ravin, pas sa direction de descente. On rebondit donc de paroi en paroi.
+                  C&apos;est le second grand argument pour{" "}
+                  <G t="normalisation">normaliser les features</G> — le premier étant les
+                  distances — et la raison d&apos;être des optimiseurs à moment.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { LineChart } from "@/components/viz/LineChart";
@@ -147,6 +149,83 @@ export function OverfittingLab() {
               </Callout>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "of1",
+              question:
+                "Accuracy d'entraînement 99 %, accuracy de test 71 %. Quel est le diagnostic, et le remède ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "Surapprentissage : simplifier le modèle, régulariser, ou ajouter des données",
+                },
+                { id: "b", label: "Sous-apprentissage : prendre un modèle plus puissant" },
+                { id: "c", label: "Un bug dans le découpage" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  Le signe distinctif du <G t="overfitting">surapprentissage</G> est l&apos;
+                  <em>écart</em>, pas le niveau : le modèle réussit sur ce qu&apos;il a vu et
+                  échoue ailleurs, donc il a mémorisé au lieu de généraliser. Le{" "}
+                  <G t="underfitting">sous-apprentissage</G>, lui, donne deux chiffres bas et
+                  proches — 68 % et 66 %, par exemple.
+                </>
+              ),
+            },
+            {
+              id: "of2",
+              question:
+                "Accuracy d'entraînement 66 %, accuracy de test 65 %. Ajouter dix fois plus de données va-t-il aider ?",
+              options: [
+                { id: "a", label: "Oui, plus de données aide toujours" },
+                {
+                  id: "b",
+                  label:
+                    "Non : le modèle n'arrive déjà pas à expliquer les données qu'il a. C'est le modèle qu'il faut changer",
+                },
+                { id: "c", label: "Impossible à dire" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Plus de données soigne la mémorisation, pas l&apos;aveuglement. Quand un modèle
+                  échoue déjà sur son propre jeu d&apos;entraînement, il lui manque de la
+                  capacité — une frontière plus riche, une feature en plus, une couche cachée.
+                  C&apos;est la distinction la plus rentable de tout le machine learning, et la
+                  page <a href="/concepts/biais-variance/">Biais et variance</a> la formalise.
+                </>
+              ),
+            },
+            {
+              id: "of3",
+              question: "Pourquoi augmenter le bruit rend-il le surapprentissage plus facile ?",
+              options: [
+                { id: "a", label: "Parce que le bruit réduit le nombre de points utiles" },
+                {
+                  id: "b",
+                  label:
+                    "Parce qu'il y a davantage de détails aléatoires à mémoriser, et qu'ils ne se reproduiront pas dans le jeu de test",
+                },
+                { id: "c", label: "Parce que le modèle devient plus lent" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Un modèle assez souple finit toujours par trouver une frontière qui contourne
+                  chaque point mal placé. Cette frontière décrit parfaitement le{" "}
+                  <G t="bruit">bruit</G> de <em>cet</em> échantillon — et le bruit, par
+                  définition, ne se répète pas. Montez le curseur de bruit et regardez les îlots
+                  apparaître : ce sont des explications d&apos;accidents.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, cx, Divider, Panel, Stat, Toggle } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex, TexBlock } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
@@ -72,9 +74,9 @@ export function NaiveBayesLab() {
       title="Naive Bayes"
       lede={
         <>
-          Plutôt que de tracer une frontière, Naive Bayes répond à une question de
-          probabilité : <em>sachant ce point, quelle classe est la plus probable ?</em> Le
-          théorème de Bayes donne la réponse, à condition de savoir calculer chaque terme —
+          Plutôt que de tracer une <G t="frontiere">frontière</G>, Naive Bayes répond à une
+          question de probabilité : <em>sachant ce point, quelle classe est la plus
+          probable ?</em> Le <G t="bayes">théorème de Bayes</G> donne la réponse, à condition de savoir calculer chaque terme —
           et c&apos;est exactement ce que cette page montre, un terme à la fois.
         </>
       }
@@ -466,6 +468,87 @@ export function NaiveBayesLab() {
           }
         />
 
+
+        <Quiz
+          questions={[
+            {
+              id: "nb1",
+              question:
+                "Naive Bayes annonce « classe A à 99,97 % ». Peut-on prendre ce chiffre au sérieux ?",
+              options: [
+                { id: "a", label: "Oui, c'est une vraie probabilité" },
+                {
+                  id: "b",
+                  label:
+                    "Non : les features corrélées comptent plusieurs fois la même information, ce qui gonfle la certitude",
+                },
+                { id: "c", label: "Non, parce que le modèle est trop simple pour être sûr de quoi que ce soit" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Le calcul multiplie les <G t="vraisemblance">vraisemblances</G> comme si les
+                  features étaient indépendantes. Quand elles ne le sont pas — c&apos;est le cas
+                  général — le même indice est compté deux fois, puis trois, et le produit file
+                  vers 0 ou 1. Le <em>classement</em> des classes reste souvent juste ; le chiffre
+                  lui-même, non. C&apos;est pour ça qu&apos;on dit que Naive Bayes est un bon
+                  classifieur et un mauvais estimateur de probabilités.
+                </>
+              ),
+            },
+            {
+              id: "nb2",
+              question:
+                "Qu'est-ce que l'hypothèse « naïve » suppose exactement ?",
+              options: [
+                { id: "a", label: "Que les deux classes sont également probables" },
+                {
+                  id: "b",
+                  label:
+                    "Qu'à l'intérieur d'une classe donnée, les features ne s'informent pas l'une l'autre",
+                },
+                { id: "c", label: "Que les données suivent une loi normale" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  L&apos;indépendance supposée est <strong>conditionnelle à la classe</strong> :
+                  une fois qu&apos;on sait que le point est un A, connaître{" "}
+                  <Tex>x_1</Tex> ne doit rien apprendre sur <Tex>x_2</Tex>. Le panneau
+                  « L&apos;hypothèse naïve tient-elle ? » mesure justement ça, classe par classe.
+                  La gaussienne est une hypothèse <em>en plus</em>, propre à cette variante ; et
+                  les <G t="prior">priors</G> se lisent dans les données, ils ne sont pas supposés
+                  égaux.
+                </>
+              ),
+            },
+            {
+              id: "nb3",
+              question:
+                "Vous déplacez un point très loin des deux nuages. Que devient la prédiction ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "Elle reste tranchée : c'est la classe dont la gaussienne décroît le moins vite qui l'emporte",
+                },
+                { id: "b", label: "Elle devient 50 / 50, faute d'information" },
+                { id: "c", label: "Le modèle refuse de répondre" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  Les deux <G t="vraisemblance">vraisemblances</G> y sont minuscules, mais leur{" "}
+                  <em>rapport</em> ne l&apos;est pas : c&apos;est celle qui décroît le plus
+                  lentement — la classe la plus étalée dans cette direction — qui gagne, souvent
+                  avec une confiance affichée écrasante. Un modèle probabiliste n&apos;est pas un
+                  modèle prudent : loin des données, il extrapole sans le dire.
+                </>
+              ),
+            },
+          ]}
+        />
+
         <div className="space-y-4">
           <Callout kind="insight" title="L'expérience décisive">
             Passez sur le dataset <strong>« Deux gaussiennes »</strong> : il a été généré
@@ -480,8 +563,8 @@ export function NaiveBayesLab() {
           </Callout>
 
           <Callout kind="warning" title="Probabilité ≠ confiance">
-            Naive Bayes affiche volontiers « 99,97 % ». Ce chiffre vient de multiplier des
-            densités supposées indépendantes : chaque feature corrélée compte plusieurs fois la
+            Naive Bayes affiche volontiers « 99,97 % ». Ce chiffre vient de multiplier des{" "}
+            <G t="vraisemblance">densités</G> supposées indépendantes : chaque feature corrélée compte plusieurs fois la
             même information, ce qui gonfle artificiellement la certitude. Le classement des
             classes reste utile ; le chiffre lui-même, non.
           </Callout>
@@ -506,7 +589,8 @@ export function NaiveBayesLab() {
                 dépendance entre features, ce que le modèle ne peut pas représenter.
               </p>
               <p>
-                <strong>Comme baseline.</strong> Rapide à entraîner, quasi sans hyperparamètre.
+                <strong>Comme <G t="baseline">baseline</G>.</strong> Rapide à entraîner, quasi
+                sans <G t="hyperparametre">hyperparamètre</G>.
                 Un modèle compliqué qui ne bat pas Naive Bayes ne sert à rien.
               </p>
             </div>

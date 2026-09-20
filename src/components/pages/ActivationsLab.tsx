@@ -4,7 +4,9 @@ import * as React from "react";
 import { PageShell, SectionTitle } from "@/components/layout/PageShell";
 import { Callout, cx, Panel, Slider, Stat, Toggle } from "@/components/ui";
 import { ClientOnly } from "@/components/ui/ClientOnly";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex, TexBlock } from "@/components/math/Math";
 import { LineChart } from "@/components/viz/LineChart";
 import { Plot } from "@/components/viz/Plot";
@@ -127,6 +129,84 @@ export function ActivationsLab() {
             réseaux profonds sont devenus entraînables.
           </Callout>
         </Panel>
+
+
+        <Quiz
+          questions={[
+            {
+              id: "ac1",
+              question:
+                "Pourquoi la sigmoïde pose-t-elle problème dans un réseau profond ?",
+              options: [
+                { id: "a", label: "Elle est trop lente à calculer" },
+                {
+                  id: "b",
+                  label:
+                    "Sa dérivée ne dépasse jamais 0,25, et le produit de ces facteurs sur dix couches annule le gradient",
+                },
+                { id: "c", label: "Elle ne peut pas produire de valeurs négatives" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  La <G t="backprop">backpropagation</G> multiplie les dérivées couche après
+                  couche. Avec un facteur maximal de 0,25, dix couches donnent au mieux{" "}
+                  <Tex>{String.raw`0{,}25^{10} \approx 10^{-6}`}</Tex> : les premières couches ne
+                  reçoivent plus rien. C&apos;est le{" "}
+                  <G t="vanishing">gradient qui s&apos;évanouit</G>, et il a bloqué le domaine
+                  pendant des années. Affichez la courbe de dérivée au-dessus : le plafond est
+                  visible.
+                </>
+              ),
+            },
+            {
+              id: "ac2",
+              question: "Quel est le défaut de ReLU, et d'où vient-il ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "Sa dérivée est nulle pour z < 0 : un neurone poussé de ce côté ne reçoit plus aucun gradient et peut ne jamais revenir",
+                },
+                { id: "b", label: "Elle sature pour les grandes valeurs" },
+                { id: "c", label: "Elle est coûteuse à dériver" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  On appelle ça un « neurone mort ». Il ne s&apos;agit pas d&apos;une saturation —
+                  ReLU ne sature jamais du côté positif, ce qui est précisément sa qualité — mais
+                  d&apos;une zone plate exacte. Leaky ReLU existe pour ça : une petite pente au
+                  lieu de zéro, et le neurone garde une porte de sortie.
+                </>
+              ),
+            },
+            {
+              id: "ac3",
+              question:
+                "Pourquoi tanh est-elle généralement préférée à la sigmoïde dans les couches cachées ?",
+              options: [
+                { id: "a", label: "Elle est plus rapide" },
+                {
+                  id: "b",
+                  label:
+                    "Elle est centrée en zéro, donc ses sorties ne décalent pas systématiquement les entrées de la couche suivante",
+                },
+                { id: "c", label: "Sa dérivée est toujours égale à 1" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  La sigmoïde ne sort que des valeurs positives : toutes les entrées de la couche
+                  suivante sont donc biaisées dans le même sens, ce qui ralentit
+                  l&apos;apprentissage. Tanh va de −1 à 1. Sa dérivée culmine à 1, ce qui est
+                  mieux que 0,25 — mais elle vaut 1 seulement en zéro, donc le problème du
+                  gradient évanescent est atténué, pas résolu.
+                </>
+              ),
+            },
+          ]}
+        />
 
         <div className="space-y-4">
           <Panel title="Comment choisir" subtitle="Les règles pratiques, et leurs raisons">

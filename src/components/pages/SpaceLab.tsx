@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, Divider, Panel, Segmented, Slider, Stat, Toggle } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
@@ -367,6 +369,82 @@ export function SpaceLab() {
               </p>
             </>
           }
+        />
+
+
+        <Quiz
+          questions={[
+            {
+              id: "sp1",
+              question: "Qu'est-ce qu'un hyperplan, en une phrase ?",
+              options: [
+                { id: "a", label: "Une surface courbe qui sépare deux classes" },
+                {
+                  id: "b",
+                  label:
+                    "L'objet plat qui a une dimension de moins que l'espace : un point sur une droite, une droite dans un plan, un plan dans l'espace",
+                },
+                { id: "c", label: "Un plan dans un espace à plus de trois dimensions" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  C&apos;est une définition relative, pas absolue : « hyperplan » ne veut rien
+                  dire sans préciser dans quel espace. En dimension 100, un hyperplan a 99
+                  dimensions — il est immense, et pourtant il reste « plat », c&apos;est-à-dire
+                  décrit par une seule équation linéaire. Toute la <G t="frontiere">frontière</G>{" "}
+                  d&apos;un modèle linéaire tient dans cette équation.
+                </>
+              ),
+            },
+            {
+              id: "sp2",
+              question:
+                "Ajouter une troisième feature rend un problème séparable par un plan. Le problème était-il plus simple qu'il n'en avait l'air ?",
+              options: [
+                { id: "a", label: "Oui : il était déjà linéaire, on ne le voyait pas" },
+                {
+                  id: "b",
+                  label:
+                    "Non : il était non linéaire dans les deux features de départ, et il le reste. C'est le changement d'espace qui a créé la séparabilité",
+                },
+                { id: "c", label: "La question n'a pas de sens" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  La séparabilité n&apos;est pas une propriété des données seules, mais du couple
+                  (données, espace de description). Projetée à nouveau sur les deux features
+                  d&apos;origine, la frontière plane redevient une courbe. Voir cette
+                  double-lecture — plan là-haut, courbe en bas — est l&apos;argument entier de
+                  cette page.
+                </>
+              ),
+            },
+            {
+              id: "sp3",
+              question:
+                "En très grande dimension, que devient la distance entre deux points tirés au hasard ?",
+              options: [
+                { id: "a", label: "Elle tend vers zéro" },
+                {
+                  id: "b",
+                  label:
+                    "Toutes les distances deviennent presque égales, et « le plus proche voisin » cesse de vouloir dire grand-chose",
+                },
+                { id: "c", label: "Elle devient imprévisible" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Chaque dimension supplémentaire ajoute un écart au carré à la somme : le total
+                  grandit, mais sa <em>variation</em> relative d&apos;une paire à l&apos;autre
+                  s&apos;écrase. C&apos;est la « malédiction de la dimension », et c&apos;est la
+                  raison pour laquelle <G t="knn">KNN</G> est excellent en 2D et douteux en 100D.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">

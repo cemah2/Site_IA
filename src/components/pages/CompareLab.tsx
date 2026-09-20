@@ -4,6 +4,8 @@ import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, cx, Divider, Panel, Slider, Stat, Toggle } from "@/components/ui";
 import { Tex } from "@/components/math/Math";
+import { G } from "@/components/ui/Glossary";
+import { Quiz } from "@/components/lab/Quiz";
 import { ConfusionMatrix } from "@/components/viz/ConfusionMatrix";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
@@ -398,6 +400,83 @@ export function CompareLab() {
             </p>
           </div>
         </Panel>
+
+        <Quiz
+          questions={[
+            {
+              id: "cp1",
+              question:
+                "Deux modèles affichent 88,0 % et 88,9 % sur le même jeu de test de 48 points. Lequel est meilleur ?",
+              options: [
+                { id: "a", label: "Le second, clairement" },
+                {
+                  id: "b",
+                  label:
+                    "Rien ne permet de trancher : 0,9 point sur 48 points, c'est moins d'un demi-point de données",
+                },
+                { id: "c", label: "Le premier, parce qu'il est plus simple" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Sur 48 points, une seule prédiction vaut 2,1 points d&apos;accuracy. Un écart
+                  plus petit que ça ne veut rien dire. C&apos;est exactement ce que la{" "}
+                  <a href="/concepts/validation-croisee/">validation croisée</a> permet de
+                  chiffrer : elle donne une dispersion, donc un seuil en dessous duquel il faut
+                  se taire.
+                </>
+              ),
+            },
+            {
+              id: "cp2",
+              question:
+                "Le temps d'entraînement de KNN est quasi nul, mais son coût de prédiction est le plus élevé. Pourquoi ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "Parce qu'il ne fait rien à l'entraînement : tout le travail — comparer au dataset entier — arrive au moment de répondre",
+                },
+                { id: "b", label: "Parce qu'il recalcule ses paramètres à chaque requête" },
+                { id: "c", label: "Parce que sa frontière est complexe à évaluer" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  <G t="knn">KNN</G> est le cas extrême du modèle « paresseux » : le{" "}
+                  <G t="modele">modèle</G> <em>est</em> le jeu de données. À l&apos;autre bout,
+                  un réseau de neurones met longtemps à s&apos;entraîner puis répond en quelques
+                  multiplications. La colonne « coût de prédiction » de ce tableau est souvent
+                  celle qui décide en production.
+                </>
+              ),
+            },
+            {
+              id: "cp3",
+              question:
+                "Sur « Classes qui se recouvrent », aucun modèle ne dépasse 85 %. Que faut-il en conclure ?",
+              options: [
+                { id: "a", label: "Qu'il faut un modèle plus puissant" },
+                {
+                  id: "b",
+                  label:
+                    "Que les classes se chevauchent réellement : une part de l'erreur est irréductible, et un modèle à 100 % aurait mémorisé le bruit",
+                },
+                { id: "c", label: "Que les données sont mal générées" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Là où les deux distributions se superposent, la même position peut légitimement
+                  appartenir aux deux classes. Aucune fonction ne peut renvoyer deux réponses.
+                  Reconnaître un plafond irréductible évite des semaines passées à optimiser
+                  contre du <G t="bruit">bruit</G>.
+                </>
+              ),
+            },
+          ]}
+        />
+
       </div>
     </PageShell>
   );

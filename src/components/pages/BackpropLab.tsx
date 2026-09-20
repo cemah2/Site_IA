@@ -3,7 +3,9 @@
 import * as React from "react";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, cx, Divider, Panel, Slider, Stat } from "@/components/ui";
+import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { ClassMark } from "@/components/viz/Legend";
@@ -529,6 +531,75 @@ export function BackpropLab() {
               </p>
             </>
           }
+        />
+
+        <Quiz
+          questions={[
+            {
+              id: "bp1",
+              question:
+                "Avec un softmax et une entropie croisée, que vaut le δ de la couche de sortie ?",
+              options: [
+                { id: "a", label: "La dérivée de l'activation multipliée par l'erreur" },
+                { id: "b", label: "Simplement la prédiction moins la vérité : ŷ − y" },
+                { id: "c", label: "La somme des gradients de toutes les couches" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  C&apos;est la raison pour laquelle ce couple est universel : les dérivées du
+                  softmax et de l&apos;entropie croisée se simplifient exactement, et il ne reste
+                  que « ce que tu as dit, moins ce que tu aurais dû dire ». Aucune règle de
+                  dérivation en chaîne n&apos;est nécessaire pour le premier pas.
+                </>
+              ),
+            },
+            {
+              id: "bp2",
+              question: "Pourquoi le gradient d'un poids vaut-il « δ du neurone × entrée du poids » ?",
+              options: [
+                {
+                  id: "a",
+                  label:
+                    "Parce que ce poids n'influence la loss qu'en multipliant cette entrée : son effet est proportionnel à elle",
+                },
+                { id: "b", label: "Par convention de calcul" },
+                { id: "c", label: "Parce que les poids sont initialisés au hasard" },
+              ],
+              answer: 0,
+              explanation: (
+                <>
+                  Si l&apos;entrée d&apos;un poids vaut zéro, le modifier ne change rien à la
+                  sortie — son <G t="gradient">gradient</G> est nul, et c&apos;est ce que dit la
+                  formule. Conséquence pratique : un neurone éteint par ReLU n&apos;apprend pas,
+                  et les poids qui partent de lui non plus.
+                </>
+              ),
+            },
+            {
+              id: "bp3",
+              question: "En quoi la backpropagation est-elle « efficace » ?",
+              options: [
+                { id: "a", label: "Elle trouve le minimum global de la loss" },
+                {
+                  id: "b",
+                  label:
+                    "Elle obtient les gradients de tous les poids en une seule remontée, au lieu de re-tester chaque poids un par un",
+                },
+                { id: "c", label: "Elle évite d'avoir à faire la forward propagation" },
+              ],
+              answer: 1,
+              explanation: (
+                <>
+                  Estimer numériquement le gradient demanderait deux passes avant par poids : sur
+                  un million de poids, deux millions de passes pour un seul pas. La
+                  backpropagation réutilise les calculs intermédiaires et obtient tout en une
+                  remontée — environ le coût d&apos;une passe avant. Sans cette astuce, aucun
+                  réseau moderne ne serait entraînable.
+                </>
+              ),
+            },
+          ]}
         />
 
         <div className="space-y-4">
