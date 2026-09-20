@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cx } from "@/components/ui";
+import { cx } from "@/lib/cx";
 import { ClientOnly, WorkbenchSkeleton } from "@/components/ui/ClientOnly";
 
 /**

@@ -2,9 +2,9 @@
 
 import * as React from "react";
 
-export function cx(...parts: (string | false | null | undefined)[]): string {
-  return parts.filter(Boolean).join(" ");
-}
+import { cx } from "@/lib/cx";
+
+export { cx } from "@/lib/cx";
 
 /* ------------------------------------------------------------------ Panel */
 
