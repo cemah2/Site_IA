@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Callout, Divider, Panel, Segmented, Slider, Stat, Toggle } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { PredictFirst } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
@@ -505,6 +506,31 @@ export function KnnLab() {
         />
 
 
+        <PredictFirst
+          id="knn-large-k"
+          className="mb-5"
+          question={
+            <>
+              Avant de toucher au curseur : le dataset a 160 points. Si vous poussez{" "}
+              <Tex>K</Tex> jusqu&apos;à 160, à quoi ressemblera la frontière ?
+            </>
+          }
+          options={[
+            "Elle collera parfaitement aux points",
+            "Elle se lissera mais restera une vraie frontière",
+            "Elle disparaîtra : une seule couleur partout",
+          ]}
+          answer={2}
+          explanation={
+            <>
+              Avec <Tex>K = n</Tex>, chaque requête fait voter tout le dataset, et le résultat ne
+              dépend plus d&apos;où l&apos;on se trouve : c&apos;est la classe majoritaire, partout.
+              Poussez le curseur au bout pour le constater — le plan devient uni. Beaucoup de gens
+              répondent « elle se lisse », ce qui est vrai jusqu&apos;à un certain point et faux à
+              la limite.
+            </>
+          }
+        />
         <Quiz
           questions={[
             {

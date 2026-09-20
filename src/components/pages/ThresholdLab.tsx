@@ -8,6 +8,7 @@ import { Levels } from "@/components/ui/Levels";
 import { Tex, TexBlock } from "@/components/math/Math";
 import { DatasetControls } from "@/components/lab/DatasetControls";
 import { Narrator } from "@/components/lab/Narrator";
+import { NumericExercise } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
@@ -500,6 +501,29 @@ export function ThresholdLab() {
         Vérifiez que c&apos;est passé
       </SectionTitle>
 
+      <NumericExercise
+        id="cost-threshold"
+        className="mb-5"
+        prompt={
+          <>
+            Dans votre application, laisser passer un cas coûte <strong>19 fois</strong> plus cher
+            qu&apos;une fausse alerte. À quel seuil faut-il couper pour minimiser le coût espéré ?
+          </>
+        }
+        answer={0.05}
+        tolerance={0.005}
+        steps={[
+          <>
+            Le seuil optimal vaut{" "}
+            <Tex>{String.raw`t^{*} = c_{\text{FP}} / (c_{\text{FP}} + c_{\text{FN}})`}</Tex>.
+          </>,
+          <>Avec une fausse alerte à 1 et un oubli à 19 : 1 ÷ (1 + 19).</>,
+          <>
+            Soit 0,05 : on signale dès 5 % de conviction, parce que dix-neuf vérifications
+            inutiles coûtent moins qu&apos;un seul oubli.
+          </>,
+        ]}
+      />
       <Quiz
         questions={[
           {

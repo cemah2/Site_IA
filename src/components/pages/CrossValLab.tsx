@@ -8,6 +8,7 @@ import { Levels } from "@/components/ui/Levels";
 import { Tex, TexBlock } from "@/components/math/Math";
 import { DatasetControls } from "@/components/lab/DatasetControls";
 import { Narrator } from "@/components/lab/Narrator";
+import { NumericExercise } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
@@ -522,6 +523,24 @@ export function CrossValLab() {
         Vérifiez que c&apos;est passé
       </SectionTitle>
 
+      <NumericExercise
+        id="cv-fits"
+        className="mb-5"
+        prompt={
+          <>
+            Vous testez <strong>12 valeurs</strong> d&apos;hyperparamètre en validation croisée à{" "}
+            <strong>5 plis</strong>, puis vous réentraînez une fois le modèle retenu sur toutes les
+            données. Combien d&apos;entraînements au total ?
+          </>
+        }
+        answer={61}
+        tolerance={0.5}
+        steps={[
+          <>Chaque valeur testée coûte un entraînement par pli, donc 5.</>,
+          <>12 valeurs × 5 plis = 60.</>,
+          <>Plus le modèle final, réentraîné sur tout : 60 + 1.</>,
+        ]}
+      />
       <Quiz
         questions={[
           {

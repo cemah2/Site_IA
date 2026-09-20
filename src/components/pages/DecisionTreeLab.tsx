@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Button, Callout, cx, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { NumericExercise } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
@@ -538,6 +539,26 @@ export function DecisionTreeLab() {
         />
 
 
+        <NumericExercise
+          id="gini-node"
+          className="mb-5"
+          prompt={
+            <>
+              Un nœud contient <strong>30 points</strong> : 18 de classe A et 12 de classe B. Quelle
+              est son impureté de Gini ?
+            </>
+          }
+          answer={0.48}
+          tolerance={0.005}
+          steps={[
+            <>Proportions : 18/30 = 0,6 et 12/30 = 0,4.</>,
+            <>
+              Gini vaut <Tex>{String.raw`1 - \sum_c p_c^2`}</Tex>, donc ici{" "}
+              <Tex>{String.raw`1 - (0{,}6^2 + 0{,}4^2)`}</Tex>.
+            </>,
+            <>0,36 + 0,16 = 0,52, et 1 − 0,52 donne le résultat.</>,
+          ]}
+        />
         <Quiz
           questions={[
             {

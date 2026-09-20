@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Button, Callout, Divider, Panel, Select, Slider, Stat, Toggle } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { NumericExercise } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { Plot, localPoint, type PlotFrame } from "@/components/viz/Plot";
@@ -437,6 +438,23 @@ export function LinearRegressionLab() {
         />
 
 
+        <NumericExercise
+          id="residual"
+          className="mb-5"
+          prompt={
+            <>
+              La droite ajustée est <Tex>{String.raw`\hat{y} = 2x + 0{,}5`}</Tex>. Un point observé
+              vaut <strong>(3 ; 7)</strong>. Quel est son résidu ?
+            </>
+          }
+          answer={0.5}
+          tolerance={0.01}
+          steps={[
+            <>Le résidu est l&apos;écart vertical : valeur observée moins valeur prédite.</>,
+            <>Prédiction en <Tex>x = 3</Tex> : 2 × 3 + 0,5 = 6,5.</>,
+            <>7 − 6,5.</>,
+          ]}
+        />
         <Quiz
           questions={[
             {

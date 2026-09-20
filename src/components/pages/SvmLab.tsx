@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Callout, Divider, Panel, Segmented, Slider, Stat, Toggle } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { PredictFirst } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
@@ -457,6 +458,27 @@ export function SvmLab() {
         />
 
 
+        <PredictFirst
+          id="svm-big-c"
+          className="mb-5"
+          question={
+            <>
+              Vous poussez <Tex>C</Tex> au maximum, sur des classes qui se recouvrent un peu. Que
+              devient le nombre de vecteurs de support ?
+            </>
+          }
+          options={["Il augmente", "Il diminue", "Il ne bouge pas"]}
+          answer={1}
+          explanation={
+            <>
+              Un <Tex>C</Tex> élevé interdit les violations de marge : le modèle rétrécit sa marge
+              jusqu&apos;à ce que presque plus aucun point ne s&apos;y trouve, et ce sont justement
+              les points dans la marge qui sont vecteurs de support. Moins de vecteurs de support
+              signifie donc ici une frontière plus fragile, pas plus robuste — elle ne tient plus
+              que sur une poignée de points.
+            </>
+          }
+        />
         <Quiz
           questions={[
             {

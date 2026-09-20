@@ -9,6 +9,7 @@ import { LiveFormula, Tex, TexBlock } from "@/components/math/Math";
 import { Annotations } from "@/components/lab/Annotations";
 import { DatasetControls } from "@/components/lab/DatasetControls";
 import { Narrator } from "@/components/lab/Narrator";
+import { NumericExercise } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
@@ -789,6 +790,27 @@ export function LogisticLab() {
         Vérifiez que c&apos;est passé
       </SectionTitle>
 
+      <NumericExercise
+        id="sigmoid-2"
+        className="mb-5"
+        prompt={
+          <>
+            Un point obtient le score <Tex>z = 2</Tex>. Quelle probabilité le modèle lui
+            donne-t-il d&apos;appartenir à la classe 1 ? (deux décimales suffisent)
+          </>
+        }
+        answer={0.88}
+        tolerance={0.015}
+        steps={[
+          <>
+            <Tex>{String.raw`\sigma(z) = \dfrac{1}{1 + e^{-z}}`}</Tex>.
+          </>,
+          <>
+            <Tex>{String.raw`e^{-2} \approx 0{,}135`}</Tex>.
+          </>,
+          <>1 ÷ 1,135 ≈ 0,88 — un score de 2 vaut donc déjà 88 % de conviction.</>,
+        ]}
+      />
       <Quiz
         questions={[
           {

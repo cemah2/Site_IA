@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Callout, Divider, Panel, Stat, Toggle } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { NumericExercise } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
@@ -385,6 +386,27 @@ export function NearestCentroidLab() {
         />
 
 
+        <NumericExercise
+          id="centroid-distance"
+          className="mb-5"
+          prompt={
+            <>
+              Le centroïde de la classe A est en <strong>(1 ; 2)</strong>, celui de la classe B en{" "}
+              <strong>(6 ; 5)</strong>. Un point arrive en <strong>(4 ; 6)</strong>. Quelle est sa
+              distance euclidienne au centroïde de <strong>A</strong> ?
+            </>
+          }
+          answer={5}
+          tolerance={0.02}
+          steps={[
+            <>Écart horizontal : 4 − 1 = 3.</>,
+            <>Écart vertical : 6 − 2 = 4.</>,
+            <>
+              Racine de la somme des carrés :{" "}
+              <Tex>{String.raw`\sqrt{3^2 + 4^2} = \sqrt{25}`}</Tex>.
+            </>,
+          ]}
+        />
         <Quiz
           questions={[
             {

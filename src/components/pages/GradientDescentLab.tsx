@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { PredictFirst } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { CostSurface3D } from "@/components/viz/CostSurface3D";
@@ -498,6 +499,30 @@ export function GradientDescentLab() {
         />
 
 
+        <PredictFirst
+          id="gd-big-lr"
+          className="mb-5"
+          question={
+            <>
+              La surface de coût d&apos;une régression linéaire n&apos;a qu&apos;un seul minimum. Avec
+              un pas beaucoup trop grand, où finit la bille ?
+            </>
+          }
+          options={[
+            "Au minimum, mais lentement",
+            "Dans un autre minimum",
+            "Nulle part : elle s'éloigne de plus en plus",
+          ]}
+          answer={2}
+          explanation={
+            <>
+              Un pas trop long saute par-dessus le fond et atterrit plus haut de l&apos;autre côté ;
+              la pente y est plus forte, donc le pas suivant est plus long encore. Le mécanisme
+              s&apos;emballe tout seul. « Un autre minimum » est impossible ici — il n&apos;y en a
+              qu&apos;un — mais deviendra la bonne réponse sur un réseau de neurones.
+            </>
+          }
+        />
         <Quiz
           questions={[
             {

@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { PredictFirst } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
@@ -153,6 +154,26 @@ export function OverfittingLab() {
         />
 
 
+        <PredictFirst
+          id="of-more-data"
+          className="mb-5"
+          question={
+            <>
+              Un modèle affiche 99 % à l&apos;entraînement et 71 % en validation. Vous multipliez le
+              nombre de données par dix, sans rien changer d&apos;autre. Que devient l&apos;écart ?
+            </>
+          }
+          options={["Il se réduit", "Il reste identique", "Il se creuse"]}
+          answer={0}
+          explanation={
+            <>
+              Plus de données rendent la mémorisation plus coûteuse : le modèle ne peut plus
+              contourner chaque point un par un, et se rabat sur la régularité. C&apos;est le remède
+              au surapprentissage. Attention au piège symétrique : si les deux chiffres étaient bas
+              <em> et proches</em>, dix fois plus de données n&apos;y changerait rien du tout.
+            </>
+          }
+        />
         <Quiz
           questions={[
             {

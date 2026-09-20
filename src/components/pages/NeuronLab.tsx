@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { NumericExercise } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { Plot } from "@/components/viz/Plot";
@@ -352,6 +353,26 @@ export function NeuronLab() {
         />
 
 
+        <NumericExercise
+          id="neuron-z"
+          className="mb-5"
+          prompt={
+            <>
+              Un neurone a les poids <Tex>{String.raw`w_1 = 2`}</Tex>,{" "}
+              <Tex>{String.raw`w_2 = -3`}</Tex> et le biais <Tex>b = 1</Tex>. On lui présente le
+              point <strong>(1,5 ; 0,5)</strong>. Que vaut <Tex>z</Tex>, avant activation ?
+            </>
+          }
+          answer={2.5}
+          tolerance={0.01}
+          steps={[
+            <>
+              <Tex>{String.raw`z = w_1x_1 + w_2x_2 + b`}</Tex> — une somme pondérée, plus le biais.
+            </>,
+            <>2 × 1,5 = 3, et −3 × 0,5 = −1,5.</>,
+            <>3 − 1,5 + 1.</>,
+          ]}
+        />
         <Quiz
           questions={[
             {
