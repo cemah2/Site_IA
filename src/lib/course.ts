@@ -108,6 +108,13 @@ export const COURSE: CourseChapter[] = [
           "Vous saurez lire une courbe ROC, choisir un seuil en fonction de ce que coûtent vos erreurs, et repérer quand l'accuracy ment.",
         minutes: 14,
       },
+      {
+        href: "/concepts/fuite-de-donnees/",
+        title: "La fuite de données",
+        outcome:
+          "Vous saurez reconnaître les situations où un bon score ne veut rien dire, et dans quel ordre s'en méfier.",
+        minutes: 12,
+      },
     ],
   },
   {

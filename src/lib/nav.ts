@@ -67,6 +67,7 @@ export const NAV: NavSection[] = [
       { href: "/concepts/regularisation/", label: "Régularisation", blurb: "Payer la complexité pour l'éviter" },
       { href: "/concepts/validation-croisee/", label: "Validation croisée", blurb: "Le chiffre auquel on peut se fier" },
       { href: "/concepts/seuil/", label: "Le seuil de décision", blurb: "Précision, rappel, ROC — et ce que coûtent vos erreurs" },
+      { href: "/concepts/fuite-de-donnees/", label: "La fuite de données", blurb: "Le bug qui se déguise en succès" },
       { href: "/concepts/clustering/", label: "Clustering", blurb: "Apprendre sans étiquettes : K-means" },
     ],
   },
