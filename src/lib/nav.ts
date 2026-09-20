@@ -63,6 +63,7 @@ export const NAV: NavSection[] = [
       { href: "/concepts/overfitting/", label: "Sur / sous-apprentissage", blurb: "Quand le modèle apprend le bruit" },
       { href: "/concepts/biais-variance/", label: "Biais et variance", blurb: "Les deux façons de se tromper" },
       { href: "/concepts/regularisation/", label: "Régularisation", blurb: "Payer la complexité pour l'éviter" },
+      { href: "/concepts/validation-croisee/", label: "Validation croisée", blurb: "Le chiffre auquel on peut se fier" },
       { href: "/concepts/clustering/", label: "Clustering", blurb: "Apprendre sans étiquettes : K-means" },
     ],
   },

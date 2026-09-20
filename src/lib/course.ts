@@ -87,6 +87,13 @@ export const COURSE: CourseChapter[] = [
         outcome: "Vous saurez dire si plus de données aiderait, ou si c'est le modèle qu'il faut changer.",
         minutes: 10,
       },
+      {
+        href: "/concepts/validation-croisee/",
+        title: "Validation croisée",
+        outcome:
+          "Vous saurez à quel point une accuracy de test dépend du hasard, et comment annoncer un chiffre défendable.",
+        minutes: 12,
+      },
     ],
   },
   {
