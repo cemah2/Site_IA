@@ -13,6 +13,7 @@ import { fitBoosting } from "../models/boosting";
 import { softmax } from "../models/activations";
 import { auc, confusionAt, curvePoints, metricsAt, type ScoredSample } from "../threshold";
 import { pca } from "../pca";
+import { SEARCH_INDEX, fold, search } from "../../search";
 import { DEFAULT_PARAMS } from "../registry";
 
 /**
@@ -336,4 +337,45 @@ test("PCA : trop peu de lignes ou de colonnes, pas de résultat inventé", () =>
   assert.equal(pca([[1, 2], [3, 4]]), null);
   assert.equal(pca([[1], [2], [3], [4]]), null);
   assert.equal(pca([]), null);
+});
+
+test("recherche : le terme trouve sa page, accents et casse compris", () => {
+  assert.equal(fold("Régularisation").length, "Régularisation".length, "le pliage change la longueur");
+  assert.equal(fold("Régularisation"), "regularisation");
+
+  const first = (q: string) => search(q)[0]?.href;
+  assert.equal(first("gini"), "/classification/arbre-de-decision/");
+  assert.equal(first("mnist"), "/reseaux/chiffres/");
+  // Casse et accents indifférents, et à égalité de titre la page passe devant
+  // la définition : on atteint la définition depuis la page, pas l'inverse.
+  assert.equal(first("REGULARISATION"), "/concepts/regularisation/");
+  assert.equal(first("régularisation"), "/concepts/regularisation/");
+  assert.equal(search("régularisation")[1]?.href, "/glossaire/#regularisation");
+  // "roc" is a substring of "proches": a match inside a word must not outrank
+  // the page the reader is obviously looking for.
+  assert.equal(first("roc"), "/concepts/seuil/");
+  assert.equal(search("zzzz").length, 0);
+});
+
+test("recherche : plusieurs mots, c'est un ET", () => {
+  const hits = search("descente gradient");
+  assert.ok(hits.length > 0);
+  assert.ok(
+    hits.every((h) => {
+      const hay = fold(`${h.title} ${h.sub} ${h.keywords ?? ""}`);
+      return hay.includes("descente") && hay.includes("gradient");
+    }),
+    "un résultat ne contient pas les deux mots",
+  );
+  assert.equal(search("gradient zzzz").length, 0);
+});
+
+test("index de recherche : chaque entrée a un href et un titre", () => {
+  assert.ok(SEARCH_INDEX.length > 90, `${SEARCH_INDEX.length} entrées`);
+  for (const e of SEARCH_INDEX) {
+    assert.ok(e.title.trim(), `titre vide pour ${e.href}`);
+    assert.ok(e.href.startsWith("/"), `href inattendu : ${e.href}`);
+  }
+  const hrefs = SEARCH_INDEX.map((e) => e.href);
+  assert.equal(new Set(hrefs).size, hrefs.length, "deux entrées pointent au même endroit");
 });

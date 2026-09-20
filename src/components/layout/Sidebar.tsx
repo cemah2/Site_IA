@@ -8,6 +8,7 @@ import { NAV } from "@/lib/nav";
 import { CourseProgressBar } from "@/components/lab/CourseProgress";
 import { subscribeQuizLog, summarise } from "@/lib/progress/quiz-log";
 import { ThemeToggle } from "./ThemeToggle";
+import { SearchButton } from "./SearchPalette";
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -31,6 +32,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-4">
+        <SearchButton className="mb-4 w-full" />
         <CourseProgressBar className="mb-4" />
         {NAV.map((section) => (
           <div key={section.title} className="mb-5 last:mb-0">

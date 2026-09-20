@@ -9,6 +9,7 @@ import { Sidebar } from "./Sidebar";
 import { CourseVisitTracker } from "@/components/lab/CourseProgress";
 import { PermalinkLoader } from "@/components/lab/ShareLink";
 import { useTheme } from "./ThemeToggle";
+import { SearchButton, SearchPalette } from "./SearchPalette";
 
 /**
  * The frame every page sits in: a persistent left rail on desktop, a drawer on
@@ -51,6 +52,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
       <CourseVisitTracker />
       <PermalinkLoader />
+      <SearchPalette />
       {/* Desktop rail */}
       <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 border-r border-line bg-surface-1/50 lg:block">
         <Sidebar />
@@ -81,9 +83,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </button>
-          <span className="truncate text-sm font-medium text-ink">
+          <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
             {found?.item.label ?? "Machine Learning Lab"}
           </span>
+          <SearchButton className="shrink-0" />
         </header>
 
         <main id="contenu" tabIndex={-1} className="min-w-0 flex-1 focus:outline-none">
