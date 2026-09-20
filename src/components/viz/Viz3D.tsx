@@ -63,3 +63,4 @@ export function Viz3DCanvas({
     </div>
   );
 }
+

@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
+import { Viz3DPlaceholder } from "@/components/viz/Viz3DPlaceholder";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, Divider, Panel, Segmented, Slider, Stat, Toggle } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
@@ -9,7 +11,20 @@ import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
-import { Scatter3D, type Point3 } from "@/components/viz/Scatter3D";
+import type { Point3 } from "@/components/viz/Scatter3D";
+
+/**
+ * Loaded on demand.
+ *
+ * three.js is 243 KB gzipped, and it used to ship in the chunk every page
+ * pulls — including the home page, which has no 3-D at all. Three pages out of
+ * thirty-five need it, so it is fetched when one of them is opened and not a
+ * moment earlier.
+ */
+const Scatter3D = dynamic(
+  () => import("@/components/viz/Scatter3D").then((m) => m.Scatter3D),
+  { ssr: false, loading: () => <Viz3DPlaceholder height={420} /> },
+);
 import { DatasetControls } from "@/components/lab/DatasetControls";
 import { euclidean } from "@/lib/ml/models/nearest-centroid";
 import { formatNumber } from "@/lib/viz/geometry";

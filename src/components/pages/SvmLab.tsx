@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
+import { Viz3DPlaceholder } from "@/components/viz/Viz3DPlaceholder";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Callout, Divider, Panel, Segmented, Slider, Stat, Toggle } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
@@ -10,7 +12,11 @@ import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
-import { KernelLift } from "@/components/viz/KernelLift";
+/** Loaded on demand: see the note in SpaceLab — three.js is not free. */
+const KernelLift = dynamic(
+  () => import("@/components/viz/KernelLift").then((m) => m.KernelLift),
+  { ssr: false, loading: () => <Viz3DPlaceholder height={360} /> },
+);
 import { DatasetControls } from "@/components/lab/DatasetControls";
 import { Narrator } from "@/components/lab/Narrator";
 import { useAsyncFit } from "@/lib/hooks/useAsyncFit";

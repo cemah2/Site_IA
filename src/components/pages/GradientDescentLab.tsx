@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
+import { Viz3DPlaceholder } from "@/components/viz/Viz3DPlaceholder";
 import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShell";
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
@@ -8,7 +10,11 @@ import { Levels } from "@/components/ui/Levels";
 import { PredictFirst } from "@/components/lab/Practice";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
-import { CostSurface3D } from "@/components/viz/CostSurface3D";
+/** Loaded on demand: see the note in SpaceLab — three.js is not free. */
+const CostSurface3D = dynamic(
+  () => import("@/components/viz/CostSurface3D").then((m) => m.CostSurface3D),
+  { ssr: false, loading: () => <Viz3DPlaceholder height={400} /> },
+);
 import { LineChart } from "@/components/viz/LineChart";
 import { Plot } from "@/components/viz/Plot";
 import {
