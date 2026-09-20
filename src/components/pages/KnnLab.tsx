@@ -205,8 +205,8 @@ export function KnnLab() {
               placeholder="Bougez le curseur K : l'effet sur la frontière et sur les erreurs sera décrit ici."
               causes={[
                 { key: "k", label: "K", value: k },
-                { key: "metric", label: "la distance", value: metric === "euclidean" ? "euclidienne" : "Manhattan", feminine: true },
-                { key: "weighted", label: "la pondération", value: weighted ? "activée" : "désactivée", feminine: true },
+                { key: "metric", label: "la distance", value: metric === "euclidean" ? "euclidienne" : "Manhattan" },
+                { key: "weighted", label: "la pondération", value: weighted ? "activée" : "désactivée" },
               ]}
               effects={
                 liveEval

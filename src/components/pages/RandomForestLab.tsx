@@ -12,6 +12,7 @@ import { ClassLegend, ClassMark } from "@/components/viz/Legend";
 import { MiniField } from "@/components/viz/MiniField";
 import { TreeDiagram } from "@/components/viz/TreeDiagram";
 import { DatasetControls } from "@/components/lab/DatasetControls";
+import { Narrator } from "@/components/lab/Narrator";
 import { computeField } from "@/lib/ml/field";
 import { evaluate } from "@/lib/ml/metrics";
 import { RandomForest } from "@/lib/ml/models/random-forest";
@@ -227,6 +228,33 @@ export function RandomForestLab() {
               onChange={setFeatureSubsampling}
               hint="Chaque coupure ne considère qu'une feature sur deux. Sans ça, tous les arbres choisissent presque la même racine et se ressemblent."
             />
+            <Divider label="Ce que ça change" />
+            <Narrator
+              causes={[
+                { key: "trees", label: "le nombre d'arbres", value: nTrees },
+                { key: "depth", label: "la profondeur", value: maxDepth },
+              ]}
+              effects={[
+                {
+                  key: "forest",
+                  label: "l'accuracy de la forêt",
+                  value: evalForest.accuracy,
+                  format: (v) => formatPercent(v),
+                  better: "up",
+                  epsilon: 0.005,
+                },
+                {
+                  key: "gap",
+                  label: "l'avance de la forêt sur l'arbre seul",
+                  value: evalForest.accuracy - evalSingle.accuracy,
+                  format: (v) => formatPercent(v, 1),
+                  better: "up",
+                  epsilon: 0.005,
+                },
+              ]}
+              placeholder="Faites varier le nombre d'arbres : l'écart avec l'arbre seul sera décrit ici."
+            />
+
             <Divider label="Données" />
             <DatasetControls />
           </>

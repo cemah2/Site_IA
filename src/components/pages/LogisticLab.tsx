@@ -599,7 +599,7 @@ export function LogisticLab() {
             <Narrator
               causes={[
                 { key: "lr", label: "le learning rate", value: learningRate },
-                { key: "l2", label: "la régularisation", value: l2, feminine: true },
+                { key: "l2", label: "la régularisation", value: l2 },
                 { key: "steps", label: "le nombre de pas", value: model.epoch },
               ]}
               effects={[

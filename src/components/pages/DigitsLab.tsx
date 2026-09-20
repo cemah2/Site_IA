@@ -563,12 +563,11 @@ export function DigitsLab() {
             <Narrator
               causes={[
                 { key: "arch", label: "le nombre de neurones cachés", value: state.hiddenCount },
-                { key: "lr", label: "le learning rate", value: learningRate, feminine: false },
+                { key: "lr", label: "le learning rate", value: learningRate },
                 {
                   key: "n",
                   label: "la taille du jeu d'entraînement",
                   value: trainCount,
-                  feminine: true,
                 },
               ]}
               effects={[

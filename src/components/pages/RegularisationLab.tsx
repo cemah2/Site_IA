@@ -5,6 +5,7 @@ import { PageShell, SectionTitle, Workbench } from "@/components/layout/PageShel
 import { Button, Callout, Divider, Panel, Segmented, Slider, Stat } from "@/components/ui";
 import { G } from "@/components/ui/Glossary";
 import { Levels } from "@/components/ui/Levels";
+import { Narrator } from "@/components/lab/Narrator";
 import { Quiz } from "@/components/lab/Quiz";
 import { LiveFormula, Tex } from "@/components/math/Math";
 import { LineChart } from "@/components/viz/LineChart";
@@ -243,6 +244,35 @@ export function RegularisationLab() {
               onChange={setDegree}
               hint="Gardez-le élevé : l'intérêt de la régularisation est justement de rendre un modèle sur-dimensionné utilisable."
             />
+            <Divider label="Ce que ça change" />
+            <Narrator
+              causes={[
+                { key: "lambda", label: "λ", value: here.lambda },
+                { key: "degree", label: "le degré", value: degree },
+              ]}
+              effects={[
+                {
+                  key: "val",
+                  label: "l'erreur de validation",
+                  value: here.val,
+                  // A badly regularised degree-11 fit reaches errors in the
+                  // hundreds; three decimals on 776 is noise, not precision.
+                  format: (v) => formatNumber(v, v >= 10 ? 1 : 3),
+                  better: "down",
+                  epsilon: 0.0005,
+                },
+                {
+                  key: "norm",
+                  label: "la taille des coefficients",
+                  value: here.norm,
+                  format: (v) => formatNumber(v, 2),
+                  better: "down",
+                  epsilon: 0.01,
+                },
+              ]}
+              placeholder="Montez λ : l'erreur de validation et la taille des coefficients seront comparées ici."
+            />
+
             <Divider label="Données" />
             <Segmented
               label="Forme"

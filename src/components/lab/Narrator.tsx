@@ -10,8 +10,6 @@ export interface Cause {
   label: string;
   value: number | string;
   format?: (v: number | string) => string;
-  /** Grammatical gender, so "augmenté"/"passé" agree in French. */
-  feminine?: boolean;
 }
 
 export interface Effect {
@@ -111,11 +109,11 @@ export function Narrator({
       typeof previous.causes[changedCause.key] === "number" &&
       typeof stable.causes[changedCause.key] === "number";
     const rose = numeric && (stable.causes[changedCause.key] as number) > (previous.causes[changedCause.key] as number);
-    const verb = numeric
-      ? rose
-        ? changedCause.feminine ? "augmentée" : "augmenté"
-        : changedCause.feminine ? "réduite" : "réduit"
-      : "changé";
+    // No gender agreement here, ever: with `avoir`, a French past participle
+    // agrees only with a direct object that PRECEDES it, and here the object
+    // always follows. "Vous avez augmenté la profondeur" is correct whatever
+    // the noun's gender; "augmentée" was not.
+    const verb = numeric ? (rose ? "augmenté" : "réduit") : "changé";
 
     let tone: "neutral" | "good" | "bad" = "neutral";
     const scored = moved.filter((m) => m.e.better);

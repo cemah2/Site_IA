@@ -10,6 +10,7 @@ import { LiveFormula, Tex } from "@/components/math/Math";
 import { LineChart } from "@/components/viz/LineChart";
 import { Plot } from "@/components/viz/Plot";
 import { DatasetControls } from "@/components/lab/DatasetControls";
+import { Narrator } from "@/components/lab/Narrator";
 import { kmeansSteps } from "@/lib/ml/models/kmeans";
 import { shapePath, formatNumber } from "@/lib/viz/geometry";
 import { classColor, classShape, CHROME, SERIES, withAlpha } from "@/lib/viz/palette";
@@ -271,6 +272,32 @@ export function ClusteringLab() {
               onChange={setShowTruth}
               hint="Pour comparer ce que l'algorithme a trouvé à ce qu'on savait déjà — une information qu'il n'a jamais eue."
             />
+            <Divider label="Ce que ça change" />
+            <Narrator
+              causes={[
+                { key: "k", label: "K", value: k },
+                { key: "init", label: "l'initialisation", value: initSeed },
+              ]}
+              effects={[
+                {
+                  key: "inertia",
+                  label: "l'inertie",
+                  value: current?.inertia ?? 0,
+                  format: (v) => formatNumber(v, 2),
+                  better: "down",
+                  epsilon: 0.01,
+                },
+                {
+                  key: "steps",
+                  label: "le nombre d'itérations avant stabilisation",
+                  value: steps.length - 1,
+                  format: (v) => String(Math.round(v)),
+                  epsilon: 0.5,
+                },
+              ]}
+              placeholder="Changez K ou l'initialisation : l'inertie atteinte sera comparée ici. Attention, une inertie plus basse n'est pas forcément un meilleur regroupement."
+            />
+
             <Divider label="Données" />
             <DatasetControls />
             <Button size="sm" variant="ghost" className="w-full" onClick={reseed}>

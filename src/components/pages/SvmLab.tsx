@@ -11,6 +11,7 @@ import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend } from "@/components/viz/Legend";
 import { KernelLift } from "@/components/viz/KernelLift";
 import { DatasetControls } from "@/components/lab/DatasetControls";
+import { Narrator } from "@/components/lab/Narrator";
 import { useAsyncFit } from "@/lib/hooks/useAsyncFit";
 import { DEFAULT_PARAMS } from "@/lib/ml/registry";
 import { type KernelKind } from "@/lib/ml/models/svm";
@@ -248,6 +249,33 @@ export function SvmLab() {
               onChange={setShowMargin}
               hint={binary ? undefined : "Disponible uniquement en classification binaire."}
             />
+            <Divider label="Ce que ça change" />
+            <Narrator
+              causes={[
+                { key: "C", label: "C", value: C },
+                { key: "kernel", label: "le kernel", value: kernel },
+                { key: "gamma", label: "gamma", value: gamma },
+              ]}
+              effects={[
+                {
+                  key: "acc",
+                  label: "l'accuracy",
+                  value: evaluation?.accuracy ?? 0,
+                  format: (v) => formatPercent(v),
+                  better: "up",
+                  epsilon: 0.005,
+                },
+                {
+                  key: "sv",
+                  label: "le nombre de vecteurs de support",
+                  value: supportIds.size,
+                  format: (v) => String(Math.round(v)),
+                  epsilon: 0.5,
+                },
+              ]}
+              placeholder="Changez C ou le kernel : l'effet sur la marge et sur les vecteurs de support sera décrit ici."
+            />
+
             <Divider label="Données" />
             <DatasetControls
               showClasses={false}

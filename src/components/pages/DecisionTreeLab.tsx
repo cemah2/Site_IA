@@ -11,6 +11,7 @@ import { DataPlot, EditHints } from "@/components/viz/DataPlot";
 import { ClassLegend, ClassMark } from "@/components/viz/Legend";
 import { TreeDiagram } from "@/components/viz/TreeDiagram";
 import { DatasetControls } from "@/components/lab/DatasetControls";
+import { Narrator } from "@/components/lab/Narrator";
 import { computeField } from "@/lib/ml/field";
 import { evaluate } from "@/lib/ml/metrics";
 import {
@@ -275,6 +276,37 @@ export function DecisionTreeLab() {
                 étape par étape.
               </p>
             )}
+            <Divider label="Ce que ça change" />
+            <Narrator
+              causes={[
+                { key: "depth", label: "la profondeur maximale", value: maxDepth },
+                {
+                  key: "leaf",
+                  label: "le minimum d'échantillons par feuille",
+                  value: minSamplesLeaf,
+                },
+                { key: "crit", label: "le critère", value: criterion },
+              ]}
+              effects={[
+                {
+                  key: "acc",
+                  label: "l'accuracy",
+                  value: evaluation.accuracy,
+                  format: (v) => formatPercent(v),
+                  better: "up",
+                  epsilon: 0.005,
+                },
+                {
+                  key: "leaves",
+                  label: "le nombre de feuilles",
+                  value: tree.leafCount,
+                  format: (v) => String(Math.round(v)),
+                  epsilon: 0.5,
+                },
+              ]}
+              placeholder="Bougez la profondeur : le nombre de feuilles et l'accuracy seront comparés ici."
+            />
+
             <Divider label="Données" />
             <DatasetControls
               shareParams={{ dp: maxDepth, lf: minSamplesLeaf, cr: criterion }}

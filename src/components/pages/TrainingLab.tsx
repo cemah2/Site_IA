@@ -12,6 +12,7 @@ import { ClassLegend } from "@/components/viz/Legend";
 import { LineChart } from "@/components/viz/LineChart";
 import { NetworkDiagram, WeightLegend } from "@/components/viz/NetworkDiagram";
 import { DatasetControls } from "@/components/lab/DatasetControls";
+import { Narrator } from "@/components/lab/Narrator";
 import { computeField } from "@/lib/ml/field";
 import { splitDataset } from "@/lib/ml/datasets";
 import { evaluate } from "@/lib/ml/metrics";
@@ -334,6 +335,34 @@ export function TrainingLab() {
               onChange={setTrainRatio}
               format={(v) => `${Math.round(v * 100)} %`}
               hint={`${split.train.length} points d'entraînement, ${split.test.length} de test`}
+            />
+
+            <Divider label="Ce que ça change" />
+            <Narrator
+              causes={[
+                { key: "arch", label: "l'architecture", value: hidden.join("-") || "aucune" },
+                { key: "lr", label: "le learning rate", value: learningRate },
+                { key: "l2", label: "la régularisation", value: l2 },
+              ]}
+              effects={[
+                {
+                  key: "test",
+                  label: "l'accuracy de test",
+                  value: evalTest?.accuracy ?? 0,
+                  format: (v) => formatPercent(v),
+                  better: "up",
+                  epsilon: 0.005,
+                },
+                {
+                  key: "gap",
+                  label: "l'écart entraînement / test",
+                  value: gap,
+                  format: (v) => formatPercent(v, 1),
+                  better: "down",
+                  epsilon: 0.005,
+                },
+              ]}
+              placeholder="Changez un réglage puis relancez l'entraînement : l'effet sera décrit ici."
             />
 
             <Divider label="Données" />
