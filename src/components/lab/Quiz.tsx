@@ -1,13 +1,17 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 import { cx } from "@/components/ui";
+import { findNav } from "@/lib/nav";
+import { recordAnswer } from "@/lib/progress/quiz-log";
 import { STATUS } from "@/lib/viz/palette";
 
 export interface QuizQuestion {
   id: string;
-  question: React.ReactNode;
-  options: { id: string; label: React.ReactNode }[];
+  /** Plain text, so the question can be asked again on the revision page. */
+  question: string;
+  options: { id: string; label: string }[];
   /** Index into `options`. */
   answer: number;
   /** Shown after answering, whatever the answer. Explains *why*. */
@@ -36,6 +40,30 @@ export function Quiz({
   const answered = questions.filter((q) => picked[q.id] !== undefined).length;
   const correct = questions.filter((q) => picked[q.id] === q.answer).length;
 
+  const pathname = usePathname();
+  const href = pathname.endsWith("/") ? pathname : `${pathname}/`;
+  const pageTitle = findNav(href)?.item.label ?? href;
+
+  // Answering is what schedules the question for review. Only the first answer
+  // to a question counts: changing your mind after seeing the correction is
+  // allowed — it is how the page teaches — but it is not retrieval, so it must
+  // not be allowed to promote a question you actually missed.
+  const logged = React.useRef(new Set<string>());
+  const choose = (q: QuizQuestion, index: number) => {
+    setPicked((p) => ({ ...p, [q.id]: index }));
+    if (logged.current.has(q.id)) return;
+    logged.current.add(q.id);
+    recordAnswer({
+      qid: `${href}#${q.id}`,
+      href,
+      pageTitle,
+      question: q.question,
+      options: q.options.map((o) => o.label),
+      answer: q.answer,
+      correct: index === q.answer,
+    });
+  };
+
   return (
     <section className="rounded-xl border border-line bg-surface-1/70">
       <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-3">
@@ -46,6 +74,15 @@ export function Quiz({
             : `${correct} / ${questions.length}`}
         </span>
       </header>
+      {answered > 0 && (
+        <p className="border-b border-line bg-surface-2/40 px-4 py-2 text-[11px] leading-snug text-ink-muted">
+          Ces questions reviendront sur la page{" "}
+          <a href="/reviser/" className="text-accent hover:underline">
+            réviser
+          </a>{" "}
+          — tout de suite si vous vous êtes trompé, dans quelques jours sinon.
+        </p>
+      )}
 
       <div className="divide-y divide-line">
         {questions.map((q, qi) => {
@@ -66,7 +103,7 @@ export function Quiz({
                   return (
                     <li key={opt.id}>
                       <button
-                        onClick={() => setPicked((p) => ({ ...p, [q.id]: oi }))}
+                        onClick={() => choose(q, oi)}
                         aria-pressed={isPicked}
                         className={cx(
                           "flex w-full items-start gap-2.5 rounded-lg border px-3 py-2 text-left text-[13px] transition-colors",

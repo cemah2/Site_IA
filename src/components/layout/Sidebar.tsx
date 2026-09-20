@@ -6,6 +6,7 @@ import * as React from "react";
 import { cx } from "@/components/ui";
 import { NAV } from "@/lib/nav";
 import { CourseProgressBar } from "@/components/lab/CourseProgress";
+import { subscribeQuizLog, summarise } from "@/lib/progress/quiz-log";
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -59,6 +60,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                         />
                       )}
                       {item.label}
+                      {item.href === "/reviser/" && <DueBadge />}
                     </Link>
                   </li>
                 );
@@ -68,6 +70,28 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </div>
     </nav>
+  );
+}
+
+/**
+ * How many questions are waiting.
+ *
+ * Spaced repetition only works if the reader comes back, and they only come
+ * back if something tells them to. A number in the sidebar is that something —
+ * it is also the only place on the site that nags, which is why it disappears
+ * completely when nothing is due.
+ */
+function DueBadge() {
+  const due = React.useSyncExternalStore(
+    subscribeQuizLog,
+    () => summarise().due,
+    () => 0,
+  );
+  if (!due) return null;
+  return (
+    <span className="tnum ml-1.5 rounded-full bg-accent/20 px-1.5 py-px text-[10px] font-semibold text-accent">
+      {due}
+    </span>
   );
 }
 

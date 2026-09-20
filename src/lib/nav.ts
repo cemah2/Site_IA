@@ -17,6 +17,7 @@ export const NAV: NavSection[] = [
       { href: "/", label: "Introduction", blurb: "Données → algorithme → modèle → prédiction" },
       { href: "/parcours/", label: "Parcours guidé", blurb: "Le site comme un cours, dans l'ordre" },
       { href: "/glossaire/", label: "Glossaire", blurb: "Tout le vocabulaire, sans prérequis" },
+      { href: "/reviser/", label: "Réviser", blurb: "Les questions reviennent avant que vous les oubliiez" },
     ],
   },
   {
