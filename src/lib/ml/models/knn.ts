@@ -43,13 +43,32 @@ export class Knn implements Classifier {
     return this.metric === "manhattan" ? manhattan(a, b) : euclidean(a, b);
   }
 
-  detail(x: number[]): KnnDetail {
-    const scored = this.samples
-      .map((sample) => ({ sample, distance: this.distance(x, sample.x) }))
-      .sort((a, b) => a.distance - b.distance);
+  /**
+   * The K closest samples, by bounded insertion rather than a full sort.
+   *
+   * This runs once per decision-surface cell — roughly ten thousand times per
+   * refit — so the difference between O(n log n) and O(n·K) per query is the
+   * difference between a responsive slider and a janky one.
+   */
+  private topK(x: number[]): { sample: Sample; distance: number }[] {
+    const k = Math.min(this.k, this.samples.length);
+    const best: { sample: Sample; distance: number }[] = [];
+    let worst = Infinity;
 
-    const k = Math.min(this.k, scored.length);
-    const neighbours: Neighbour[] = scored.slice(0, k).map((n) => ({
+    for (const sample of this.samples) {
+      const distance = this.distance(x, sample.x);
+      if (best.length === k && distance >= worst) continue;
+      let pos = best.length;
+      while (pos > 0 && best[pos - 1].distance > distance) pos--;
+      best.splice(pos, 0, { sample, distance });
+      if (best.length > k) best.pop();
+      worst = best[best.length - 1].distance;
+    }
+    return best;
+  }
+
+  detail(x: number[]): KnnDetail {
+    const neighbours: Neighbour[] = this.topK(x).map((n) => ({
       ...n,
       // Guard the d = 0 case (query sits exactly on a training point).
       weight: this.weighted ? 1 / Math.max(n.distance, 1e-6) ** 2 : 1,

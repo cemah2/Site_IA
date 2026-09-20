@@ -38,6 +38,10 @@ export interface Field {
   yMax: number;
   /** `res * res` entries, row-major, row 0 = yMin. */
   label: Int16Array;
-  /** Winning-class probability at each cell, same layout. */
+  /** Margin between the best and second-best class at each cell (0 at the
+   *  boundary, 1 when unanimous). Same layout. */
   confidence: Float32Array;
+  /** Binary problems only: the continuous signed score p₁ − p₀, which lets the
+   *  boundary be extracted as a smooth curve rather than a staircase. */
+  score: Float32Array | null;
 }

@@ -55,6 +55,7 @@ export function Plot({
   onContextMenu,
   cursor,
   ariaLabel,
+  maxWidth,
 }: {
   xDomain: [number, number];
   yDomain: [number, number];
@@ -71,6 +72,9 @@ export function Plot({
   onContextMenu?: (e: React.MouseEvent<SVGSVGElement>, frame: PlotFrame) => void;
   cursor?: string;
   ariaLabel?: string;
+  /** Cap the drawing width. With aspect = 1 this keeps the axes orthonormal on
+   *  wide screens instead of producing a plot taller than the viewport. */
+  maxWidth?: number;
 }) {
   const hostRef = React.useRef<HTMLDivElement>(null);
   // `null` until the element has actually been measured. The frame's geometry
@@ -122,7 +126,11 @@ export function Plot({
       handler?.(e, frame);
 
   return (
-    <div ref={hostRef} className={cx("relative w-full", className)}>
+    <div
+      ref={hostRef}
+      className={cx("relative mx-auto w-full", className)}
+      style={maxWidth ? { maxWidth } : undefined}
+    >
       {size === null ? (
         <div
           aria-hidden

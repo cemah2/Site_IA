@@ -47,6 +47,7 @@ export function DataPlot({
   pointRadius = 4.5,
   ariaLabel,
   extraTooltip,
+  maxWidth = 620,
 }: {
   dataset: Dataset;
   onChange?: (d: Dataset) => void;
@@ -68,6 +69,8 @@ export function DataPlot({
   pointRadius?: number;
   ariaLabel?: string;
   extraTooltip?: (s: Sample) => React.ReactNode;
+  /** Passed through to <Plot>. Default keeps square plots a sane size. */
+  maxWidth?: number;
 }) {
   const [hover, setHover] = React.useState<Sample | null>(null);
   const [cursor, setCursor] = React.useState<[number, number] | null>(null);
@@ -128,6 +131,7 @@ export function DataPlot({
         xDomain={dataset.domain[0]}
         yDomain={dataset.domain[1]}
         aspect={aspect}
+        maxWidth={maxWidth}
         xLabel={dataset.featureNames[0]}
         yLabel={dataset.featureNames[1]}
         cursor={onQuery ? "crosshair" : editable ? "crosshair" : "default"}

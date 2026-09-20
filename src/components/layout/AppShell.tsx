@@ -19,7 +19,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const found = findNav(current);
   const { prev, next } = neighbours(current);
 
-  React.useEffect(() => setOpen(false), [pathname]);
+  // Close the drawer when the route changes, during render rather than in an
+  // effect — otherwise the new page paints once with the drawer still open.
+  const [lastPath, setLastPath] = React.useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    if (open) setOpen(false);
+  }
 
   return (
     <div className="flex min-h-dvh">

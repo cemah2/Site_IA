@@ -76,10 +76,10 @@ export function Points({
             )}
             <path
               d={shapePath(classShape(s.y), cx, cy, r)}
-              fill={st.dim ? withAlpha(color, 0.3) : color}
+              fill={st.dim ? withAlpha(color, 0.55) : color}
               stroke={st.wrong ? CHROME.ink : CHROME.surface1}
-              strokeWidth={st.wrong ? 1.75 : 1.5}
-              opacity={st.dim ? 0.6 : 1}
+              strokeWidth={st.wrong ? 2 : 1.75}
+              opacity={st.dim ? 0.85 : 1}
             />
             {st.wrong && (
               <path

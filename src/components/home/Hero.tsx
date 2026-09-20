@@ -59,8 +59,15 @@ export function Hero() {
   });
 
   // Changing the problem or the algorithm invalidates a model that was already
-  // shown as trained — silently keeping the old surface would be a lie.
-  React.useEffect(() => setStage(0), [algo, kind]);
+  // shown as trained — silently keeping the old surface would be a lie. Done
+  // during render (React's documented "reset state when a prop changes"
+  // pattern) rather than in an effect, so the stale surface is never painted.
+  const runKey = `${algo}|${kind}`;
+  const [lastRunKey, setLastRunKey] = React.useState(runKey);
+  if (lastRunKey !== runKey) {
+    setLastRunKey(runKey);
+    setStage(0);
+  }
 
   return (
     <section className="border-b border-line bg-[radial-gradient(120%_80%_at_10%_-10%,rgba(37,132,245,0.09),transparent_60%)]">
@@ -74,7 +81,8 @@ export function Hero() {
                 field={stage >= 3 ? field : null}
                 mode="edit"
                 brushClass={brush}
-                aspect={0.78}
+                aspect={1}
+                maxWidth={560}
                 showConfidence={stage >= 3}
                 ariaLabel="Nuage de points interactif : ajoutez, déplacez et reclassez des points, puis entraînez un modèle"
               />
