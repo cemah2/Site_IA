@@ -15,7 +15,9 @@ import {
   leastSquares,
   lineCost,
   type GdStep,
+  type Optimiser,
 } from "@/lib/ml/models/regression";
+import type { Point2 } from "@/lib/ml/models/regression";
 import { formatNumber } from "@/lib/viz/geometry";
 import { CHROME, SERIES, STATUS } from "@/lib/viz/palette";
 import { REGRESSION_DOMAIN, useRegression } from "@/store/regression";
@@ -393,6 +395,12 @@ export function GradientDescentLab() {
           </>
         }
       />
+
+      <SectionTitle hint="La descente simple n'est presque jamais celle qu'on utilise vraiment.">
+        Trois façons de descendre
+      </SectionTitle>
+
+      <OptimiserRace points={points} />
 
       <SectionTitle hint="La même idée, à trois profondeurs de lecture.">
         Comment ça marche
@@ -783,4 +791,297 @@ function contourPath(
     }
   }
   return d;
+}
+
+const RACERS: { id: Optimiser; label: string; colour: string; blurb: string }[] = [
+  {
+    id: "sgd",
+    label: "Descente simple",
+    colour: SERIES[0],
+    blurb: "Un pas proportionnel à la pente. Rien d'autre.",
+  },
+  {
+    id: "momentum",
+    label: "Momentum",
+    colour: SERIES[1],
+    blurb: "Le pas garde l'élan des précédents, comme une bille qui prend de la vitesse.",
+  },
+  {
+    id: "adam",
+    label: "Adam",
+    colour: SERIES[2],
+    blurb: "Chaque coordonnée avance à son propre rythme, normalisée par l'ampleur de ses gradients.",
+  },
+];
+
+/**
+ * The same surface, the same start, three update rules.
+ *
+ * The honest version of this comparison, and the reason it is worth a section:
+ * on a round bowl the plain descent wins, and Adam — which the literature
+ * treats as the default — is the slowest of the three. Its advantage only
+ * appears when the surface is badly conditioned, which is why the shape of the
+ * valley is a control here rather than a fixed choice.
+ */
+function OptimiserRace({ points }: { points: Point2[] }) {
+  const [shape, setShape] = React.useState<"bowl" | "ravine">("ravine");
+  const [lr, setLr] = React.useState(0.04);
+  const [adamLr, setAdamLr] = React.useState(0.3);
+  const [step, setStep] = React.useState(150);
+  const STEPS = 150;
+  const START: [number, number] = [-2.1, 2.4];
+
+  // Shifting the x values away from zero makes the slope and the intercept
+  // strongly correlated, which turns the round bowl into a long narrow valley.
+  // The points themselves are untouched — only where they sit on the axis.
+  const racePoints = React.useMemo(
+    () => (shape === "bowl" ? points : points.map((p) => ({ ...p, x: p.x + 1.6 }))),
+    [points, shape],
+  );
+
+  const costAt = React.useCallback(
+    (a: number, b: number) => lineCost(racePoints, a, b),
+    [racePoints],
+  );
+  const optimum = React.useMemo(() => leastSquares(racePoints), [racePoints]);
+  const floor = costAt(optimum.slope, optimum.intercept);
+
+  const traces = React.useMemo(
+    () =>
+      RACERS.map((r) => ({
+        ...r,
+        trace: gradientDescent(racePoints, {
+          lr: r.id === "adam" ? adamLr : lr,
+          steps: STEPS,
+          slope0: START[0],
+          intercept0: START[1],
+          optimiser: r.id,
+        }),
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [racePoints, lr, adamLr],
+  );
+
+  const levels = React.useMemo(() => {
+    const max = Math.max(costAt(A_RANGE[0], B_RANGE[0]), costAt(A_RANGE[1], B_RANGE[1]));
+    return Array.from({ length: 11 }, (_, i) => floor + (max - floor) * ((i + 1) / 12) ** 2.1);
+  }, [costAt, floor]);
+
+  const grid = React.useMemo(() => {
+    const res = 110;
+    const values = new Float32Array(res * res);
+    for (let j = 0; j < res; j++) {
+      const b = B_RANGE[0] + ((B_RANGE[1] - B_RANGE[0]) * j) / (res - 1);
+      for (let i = 0; i < res; i++) {
+        const a = A_RANGE[0] + ((A_RANGE[1] - A_RANGE[0]) * i) / (res - 1);
+        values[j * res + i] = costAt(a, b);
+      }
+    }
+    return { res, values };
+  }, [costAt]);
+
+  // "Arrived" means within 5 % of the best cost this surface allows — a
+  // threshold, not a promise, but the same one for all three.
+  const reached = traces.map((t) => {
+    const i = t.trace.findIndex((s) => s.cost < floor * 1.05);
+    return { id: t.id, steps: i < 0 ? null : i, final: t.trace[t.trace.length - 1].cost };
+  });
+
+  const upTo = Math.min(step, STEPS);
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
+      <Panel
+        title="La course"
+        subtitle="Même surface, même point de départ, trois règles de mise à jour"
+        bodyClassName="p-3"
+      >
+        <Plot
+          xDomain={A_RANGE}
+          yDomain={B_RANGE}
+          aspect={0.8}
+          maxWidth={620}
+          xLabel="pente a"
+          yLabel="ordonnée b"
+          ariaLabel="Trajectoires de trois optimiseurs sur les courbes de niveau du coût"
+        >
+          {(frame) => (
+            <g clipPath="url(#plot-clip)">
+              {levels.map((lv, i) => (
+                <path
+                  key={lv}
+                  d={contourPath(grid, lv, frame)}
+                  fill="none"
+                  stroke={CHROME.lineStrong}
+                  strokeWidth={1}
+                  opacity={0.3 + (0.35 * (levels.length - i)) / levels.length}
+                />
+              ))}
+
+              {traces.map((t) => {
+                const pts = t.trace.slice(0, upTo + 1).filter((s) => Number.isFinite(s.cost));
+                const head = pts[pts.length - 1];
+                return (
+                  <g key={t.id}>
+                    <path
+                      d={pts
+                        .map((s, i) => {
+                          const [x, y] = frame.px(s.slope, s.intercept);
+                          return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+                        })
+                        .join("")}
+                      fill="none"
+                      stroke={t.colour}
+                      strokeWidth={2}
+                      strokeLinejoin="round"
+                      opacity={0.9}
+                    />
+                    {head && (
+                      <circle
+                        cx={frame.px(head.slope, head.intercept)[0]}
+                        cy={frame.px(head.slope, head.intercept)[1]}
+                        r={5}
+                        fill={t.colour}
+                        stroke={CHROME.surface1}
+                        strokeWidth={2}
+                      />
+                    )}
+                  </g>
+                );
+              })}
+
+              <path
+                d={`M${frame.px(optimum.slope, optimum.intercept)[0] - 7},${frame.px(optimum.slope, optimum.intercept)[1]}h14M${frame.px(optimum.slope, optimum.intercept)[0]},${frame.px(optimum.slope, optimum.intercept)[1] - 7}v14`}
+                stroke={CHROME.ink}
+                strokeWidth={1.75}
+              />
+            </g>
+          )}
+        </Plot>
+
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line pt-2.5 text-[11px]">
+          {RACERS.map((r) => (
+            <span key={r.id} className="inline-flex items-center gap-1.5 text-ink-2">
+              <svg width="18" height="6" aria-hidden>
+                <line x1="0" y1="3" x2="18" y2="3" stroke={r.colour} strokeWidth="2.5" />
+              </svg>
+              {r.label}
+            </span>
+          ))}
+          <span className="inline-flex items-center gap-1.5 text-ink-muted">
+            <svg width="14" height="14" aria-hidden>
+              <path d="M2,7h10M7,2v10" stroke={CHROME.ink} strokeWidth="1.75" />
+            </svg>
+            optimum
+          </span>
+        </div>
+
+        <div className="mt-4 border-t border-line pt-3">
+          <p className="mb-1.5 text-[11px] font-medium text-ink-2">
+            Coût au fil des pas — échelle logarithmique, sans quoi les trois courbes se
+            confondent au fond
+          </p>
+          <LineChart
+            series={traces.map((t) => ({
+              key: t.id,
+              label: t.label,
+              color: t.colour,
+              points: t.trace
+                .slice(0, upTo + 1)
+                .filter((s) => Number.isFinite(s.cost) && s.cost > 0)
+                .map((s) => ({ x: s.step, y: Math.log10(s.cost) })),
+            }))}
+            height={180}
+            xLabel="pas"
+            yFormat={(v) => `10^${v.toFixed(1)}`}
+            zeroFloor={false}
+          />
+        </div>
+      </Panel>
+
+      <div className="space-y-4">
+        <Panel title="Réglages" bodyClassName="space-y-4 p-4">
+          <Segmented
+            label="Forme de la cuvette"
+            value={shape}
+            options={[
+              { value: "bowl", label: "Ronde" },
+              { value: "ravine", label: "Ravin" },
+            ]}
+            onChange={(v) => setShape(v as "bowl" | "ravine")}
+            size="sm"
+          />
+          <p className="text-[11px] leading-snug text-ink-muted">
+            {shape === "bowl"
+              ? "Cuvette bien proportionnée : la direction de plus forte pente pointe à peu près vers le fond."
+              : "Les mêmes points, décalés le long de l'axe des x. Ça suffit à corréler la pente et l'ordonnée, et la cuvette devient une vallée étroite où la plus forte pente pointe vers la paroi d'en face, pas vers le fond."}
+          </p>
+
+          <Slider
+            label="Pas — descente simple et momentum"
+            value={lr}
+            min={0.005}
+            max={0.2}
+            step={0.005}
+            onChange={setLr}
+            format={(v) => v.toFixed(3)}
+          />
+          <Slider
+            label="Pas — Adam"
+            value={adamLr}
+            min={0.02}
+            max={1}
+            step={0.02}
+            onChange={setAdamLr}
+            format={(v) => v.toFixed(2)}
+            hint="Séparé, et c'est le point : Adam divise par l'ampleur des gradients, donc son pas vaut à peu près ce nombre quelle que soit la pente. Il vit sur une autre échelle."
+          />
+          <Slider
+            label="Pas affichés"
+            value={step}
+            min={0}
+            max={STEPS}
+            step={1}
+            onChange={setStep}
+            hint="Ramenez-le à zéro puis remontez pour rejouer la course."
+          />
+        </Panel>
+
+        <Panel title="Qui arrive, et en combien de pas" subtitle="Seuil : à 5 % du meilleur coût">
+          <div className="space-y-2">
+            {reached.map((r) => {
+              const racer = RACERS.find((x) => x.id === r.id)!;
+              return (
+                <div
+                  key={r.id}
+                  className="rounded-lg border border-line bg-surface-2/50 px-3 py-2"
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[12px] font-medium" style={{ color: racer.colour }}>
+                      {racer.label}
+                    </span>
+                    <span className="tnum text-[12px] text-ink">
+                      {r.steps === null ? "pas arrivé" : `${r.steps} pas`}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[10.5px] leading-snug text-ink-muted">
+                    {racer.blurb}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+
+        <Callout kind="insight" title="Adam n'est pas magique">
+          Sur la cuvette ronde, la descente simple gagne — et c&apos;est mesurable ici, pas une
+          opinion. L&apos;avantage de momentum et d&apos;Adam apparaît sur le ravin, où la plus
+          forte pente pointe vers la paroi d&apos;en face : la descente simple y rebondit sans
+          avancer, momentum lisse ces allers-retours, et Adam, qui donne à chaque coordonnée son
+          propre pas, se moque de la disproportion entre les axes. Sur un vrai réseau, toutes les
+          surfaces ressemblent à des ravins — d&apos;où le réglage par défaut de la profession.
+        </Callout>
+      </div>
+    </div>
+  );
 }

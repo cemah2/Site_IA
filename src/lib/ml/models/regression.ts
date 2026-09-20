@@ -91,13 +91,43 @@ export interface GdStep {
  * path crawls), about right (a smooth curve into the minimum), too large (the
  * path oscillates across the valley and diverges).
  */
+/**
+ * How a step is computed from a gradient.
+ *
+ * All three take the same gradient and differ only in what they do with its
+ * history — which is exactly why they can be run side by side on one surface
+ * and compared honestly.
+ */
+export type Optimiser = "sgd" | "momentum" | "adam";
+
 export function gradientDescent(
   points: Point2[],
-  opts: { lr: number; steps: number; slope0: number; intercept0: number },
+  opts: {
+    lr: number;
+    steps: number;
+    slope0: number;
+    intercept0: number;
+    optimiser?: Optimiser;
+    /** Momentum coefficient, and Adam's first-moment decay. */
+    beta1?: number;
+    /** Adam's second-moment decay. */
+    beta2?: number;
+  },
 ): GdStep[] {
   let slope = opts.slope0;
   let intercept = opts.intercept0;
   const out: GdStep[] = [];
+
+  const kind = opts.optimiser ?? "sgd";
+  const b1 = opts.beta1 ?? 0.9;
+  const b2 = opts.beta2 ?? 0.999;
+  const eps = 1e-8;
+  // First moment (a running average of the gradient) for momentum and Adam;
+  // second moment (a running average of its square) for Adam only.
+  let mA = 0;
+  let mB = 0;
+  let vA = 0;
+  let vB = 0;
 
   for (let step = 0; step <= opts.steps; step++) {
     const cost = lineCost(points, slope, intercept);
@@ -114,8 +144,36 @@ export function gradientDescent(
     // Stop once the numbers blow up — a diverging run is worth showing, but
     // NaN/Infinity would break every chart downstream.
     if (!Number.isFinite(cost) || cost > 1e12) break;
-    slope -= opts.lr * g.dSlope;
-    intercept -= opts.lr * g.dIntercept;
+
+    if (kind === "sgd") {
+      slope -= opts.lr * g.dSlope;
+      intercept -= opts.lr * g.dIntercept;
+    } else if (kind === "momentum") {
+      // The step keeps a memory of the previous ones. In a narrow valley the
+      // side-to-side components cancel out while the along-the-valley ones add
+      // up, which is precisely the zig-zag problem it exists to fix.
+      mA = b1 * mA + g.dSlope;
+      mB = b1 * mB + g.dIntercept;
+      slope -= opts.lr * mA;
+      intercept -= opts.lr * mB;
+    } else {
+      // Adam: same memory of the direction, divided by a memory of the
+      // magnitude. Each coordinate therefore advances at its own pace, which
+      // is why Adam barely cares how the parameters are scaled.
+      const t = step + 1;
+      mA = b1 * mA + (1 - b1) * g.dSlope;
+      mB = b1 * mB + (1 - b1) * g.dIntercept;
+      vA = b2 * vA + (1 - b2) * g.dSlope * g.dSlope;
+      vB = b2 * vB + (1 - b2) * g.dIntercept * g.dIntercept;
+      // Bias correction: both moments start at zero, so without this the first
+      // steps would be far too small.
+      const mHatA = mA / (1 - Math.pow(b1, t));
+      const mHatB = mB / (1 - Math.pow(b1, t));
+      const vHatA = vA / (1 - Math.pow(b2, t));
+      const vHatB = vB / (1 - Math.pow(b2, t));
+      slope -= (opts.lr * mHatA) / (Math.sqrt(vHatA) + eps);
+      intercept -= (opts.lr * mHatB) / (Math.sqrt(vHatB) + eps);
+    }
   }
   return out;
 }
