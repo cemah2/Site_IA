@@ -53,8 +53,13 @@ export function Plot({
   onPointerUp,
   onPointerLeave,
   onContextMenu,
+  onKeyDown,
+  onFocus,
+  onBlur,
+  focusable = false,
   cursor,
   ariaLabel,
+  ariaDescription,
   maxWidth,
 }: {
   xDomain: [number, number];
@@ -70,8 +75,16 @@ export function Plot({
   onPointerUp?: (e: React.PointerEvent<SVGSVGElement>, frame: PlotFrame) => void;
   onPointerLeave?: (e: React.PointerEvent<SVGSVGElement>) => void;
   onContextMenu?: (e: React.MouseEvent<SVGSVGElement>, frame: PlotFrame) => void;
+  onKeyDown?: (e: React.KeyboardEvent<SVGSVGElement>, frame: PlotFrame) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  /** Makes the plot a tab stop. Set it wherever the plot can be operated. */
+  focusable?: boolean;
   cursor?: string;
   ariaLabel?: string;
+  /** Longer instructions, linked with aria-describedby rather than crammed
+   *  into the label — a screen reader reads the label on every focus. */
+  ariaDescription?: string;
   /** Cap the drawing width. With aspect = 1 this keeps the axes orthonormal on
    *  wide screens instead of producing a plot taller than the viewport. */
   maxWidth?: number;
@@ -117,6 +130,7 @@ export function Plot({
     };
   }, [size, aspect, xDomain, yDomain]);
 
+  const descriptionId = React.useId();
   const xTicks = React.useMemo(() => ticks(xDomain, 6), [xDomain]);
   const yTicks = React.useMemo(() => ticks(yDomain, 6), [yDomain]);
 
@@ -131,6 +145,11 @@ export function Plot({
       className={cx("relative mx-auto w-full", className)}
       style={maxWidth ? { maxWidth } : undefined}
     >
+      {ariaDescription && (
+        <p id={descriptionId} className="sr-only">
+          {ariaDescription}
+        </p>
+      )}
       {size === null ? (
         <div
           aria-hidden
@@ -142,10 +161,15 @@ export function Plot({
         width={frame.width}
         height={frame.height}
         viewBox={`0 0 ${frame.width} ${frame.height}`}
-        role="img"
+        role={focusable ? "application" : "img"}
         aria-label={ariaLabel}
+        aria-describedby={ariaDescription ? descriptionId : undefined}
+        tabIndex={focusable ? 0 : undefined}
         style={{ cursor, touchAction: "none" }}
-        className="block select-none"
+        className="block select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+        onKeyDown={onKeyDown ? (e) => onKeyDown(e, frame) : undefined}
+        onFocus={onFocus}
+        onBlur={onBlur}
         onPointerDown={relay(onPointerDown)}
         onPointerMove={relay(onPointerMove)}
         onPointerUp={relay(onPointerUp)}

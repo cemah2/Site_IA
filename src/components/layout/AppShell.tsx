@@ -36,6 +36,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     // anything that memoised one — every chart, every canvas — has to be rebuilt
     // when they change. Remounting on an explicit click is cheap and exact.
     <div className="flex min-h-dvh" key={theme}>
+      {/*
+        The first tab stop on every page.
+
+        Measured reason it exists: the sidebar holds thirty-five links, so
+        reaching the plot — the thing the whole site is for — took forty-one
+        tab presses. A keyboard user was paying that on every single page.
+      */}
+      <a
+        href="#contenu"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-md focus:border focus:border-accent/60 focus:bg-surface-1 focus:px-3 focus:py-2 focus:text-[13px] focus:text-ink"
+      >
+        Aller au contenu
+      </a>
       <CourseVisitTracker />
       <PermalinkLoader />
       {/* Desktop rail */}
@@ -73,7 +86,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </span>
         </header>
 
-        <main className="min-w-0 flex-1">{children}</main>
+        <main id="contenu" tabIndex={-1} className="min-w-0 flex-1 focus:outline-none">
+          {children}
+        </main>
 
         {(prev || next) && (
           <footer className="border-t border-line px-5 py-6 lg:px-10">
