@@ -115,6 +115,13 @@ export const COURSE: CourseChapter[] = [
           "Vous saurez reconnaître les situations où un bon score ne veut rien dire, et dans quel ordre s'en méfier.",
         minutes: 12,
       },
+      {
+        href: "/concepts/idees-fausses/",
+        title: "Idées fausses",
+        outcome:
+          "Vous aurez confronté six croyances répandues à une mesure, dont au moins une que vous teniez pour vraie.",
+        minutes: 10,
+      },
     ],
   },
   {
